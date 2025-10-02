@@ -1,0 +1,1702 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Email Signature Builder</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; height: 100vh; display: flex; flex-direction: column; background: #f8f9fa; }
+        .header { padding: 10px 15px; background: #045E8C; color: white; box-shadow: 0 2px 10px rgba(0,0,0,0.1); display: flex; justify-content: space-between; align-items: center; }
+        .header-left { display: flex; align-items: center; gap: 12px; }
+        .header-logo { height: 50px; width: 50px; object-fit: contain; }
+        .header h1 { font-size: 22px; color: white; font-weight: 600; letter-spacing: -0.5px; }
+        .version { font-size: 13px; color: rgba(255,255,255,0.9); font-weight: 500; background: rgba(255,255,255,0.2); padding: 4px 12px; border-radius: 20px; }
+        .container { display: flex; flex: 1; overflow: hidden; }
+        .left-panel { width: 520px; border-right: none; display: flex; flex-direction: column; background: white; box-shadow: 2px 0 10px rgba(0,0,0,0.05); }
+        .right-panel { flex: 1; display: flex; flex-direction: column; }
+        .controls { padding: 10px 15px; background: white; border-bottom: 1px solid #e9ecef; display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: nowrap; }
+        .global-controls-wrapper { display: flex; align-items: center; gap: 20px; }
+        .controls-left { display: flex; align-items: center; gap: 12px; padding-right: 10px; border-right: 1px solid #e9ecef; }
+        .controls label { font-size: 13px; font-weight: 600; color: #495057; display: flex; align-items: center; white-space: nowrap; }
+        .spacing-icon { width: 24px; height: 24px; margin-right: 5px; }
+        .font-size-icon { width: 20px; height: 20px; margin-right: 5px; }
+        .global-font-wrapper { display: flex; align-items: center; margin-right: 0; }
+        .global-font-select { height: 28px; border: 1px solid #dee2e6; border-radius: 6px; background: white; cursor: pointer; font-size: 11px; padding: 0 8px; color: #495057; font-family: monospace; transition: all 0.2s; }
+        .global-font-select:focus { outline: none; border-color: #045E8C; box-shadow: 0 0 0 3px rgba(4,94,140,0.1); }
+        .spacing-wrapper { position: relative; display: inline-block; margin-left: 0; }
+        .spacing-wrapper::after { content: 'px'; position: absolute; right: 10px; top: 50%; transform: translateY(-50%); font-size: 11px; color: #6c757d; pointer-events: none; transition: opacity 0.2s; }
+        .spacing-wrapper:hover::after, .spacing-wrapper:focus-within::after { opacity: 0; }
+        .controls input { padding: 6px 10px; border: 1px solid #dee2e6; border-radius: 6px; width: 60px; font-size: 13px; transition: all 0.2s; }
+        .controls input:focus { outline: none; border-color: #045E8C; box-shadow: 0 0 0 3px rgba(4,94,140,0.1); }
+        .controls button { padding: 7px 13px; background: #045E8C; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 13px; font-weight: 500; transition: all 0.2s; white-space: nowrap; }
+        .controls button:hover { background: #034a6f; transform: translateY(-1px); box-shadow: 0 2px 8px rgba(4,94,140,0.3); }
+        .controls button:active { transform: translateY(0); }
+        .items-container { flex: 1; overflow-y: auto; padding: 15px; background: white; }
+        .zone { margin-bottom: 25px; min-height: 60px; }
+        .zone-header { font-size: 11px; font-weight: 700; color: #6c757d; margin-bottom: 10px; text-transform: uppercase; letter-spacing: 0.5px; }
+        .item { padding: 7px; margin: 5px 0; background: white; border: 2px solid #e9ecef; border-radius: 12px; cursor: move; display: flex; justify-content: space-between; align-items: center; gap: 10px; transition: all 0.2s; }
+        .item:hover { border-color: #dee2e6; box-shadow: 0 3px 12px rgba(4,94,140,0.15); }
+        .item.dragging { opacity: 0.6; transform: scale(0.98); }
+        .item.drag-over { border-top: 3px solid #045E8C; box-shadow: 0 4px 12px rgba(4,94,140,0.2); }
+        .item.spacer { background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%); border-color: #dee2e6; border-radius: 14px; }
+        .item.static-text { background: linear-gradient(135deg, #fff9e6 0%, #fff3cd 100%); border-color: #ffe69c; border-radius: 14px; }
+        .item-left { display: flex; align-items: center; gap: 10px; flex: 1; min-width: 0; }
+        .item-label { font-size: 14px; flex: 1; min-width: 0; color: #212529; font-weight: 500; }
+        .item-label input { border: none; background: transparent; font-size: 14px; width: 100%; padding: 2px 6px; border-radius: 4px; transition: all 0.2s; }
+        .item-label input:focus { outline: none; background: rgba(4,94,140,0.08); box-shadow: 0 0 0 2px rgba(4,94,140,0.15); }
+        .prefix-btn { width: 48px; height: 28px; padding: 0; font-size: 10px; background: #f8f9fa; border: 1px solid #dee2e6; border-radius: 8px; cursor: pointer; font-weight: 600; transition: all 0.2s; color: #495057; display: flex; align-items: center; justify-content: center; white-space: nowrap; }
+        .prefix-btn.active { background: #045E8C; color: white; border-color: #045E8C; }
+        .prefix-btn:hover { background: #e9ecef; border-color: #ced4da; }
+        .prefix-btn.active:hover { background: #034a6f; border-color: #034a6f; }
+        .item-controls { display: flex; gap: 0; align-items: center; }
+        .format-control-bar { display: flex; gap: 0; border: 1px solid #dee2e6; border-radius: 6px; overflow: hidden; }
+        .font-size-select { height: 28px; border: none; border-right: 1px solid #dee2e6; background: white; cursor: pointer; font-size: 11px; padding: 0 4px; font-family: monospace; transition: color 0.2s; }
+        .font-size-select.manual { color: #045E8C; font-weight: 600; }
+        .font-size-select.global { color: #6c757d; }
+        .font-size-select:focus { outline: none; background: #f8f9fa; }
+        .format-buttons { display: flex; gap: 0; }
+        .format-btn { width: 28px; height: 28px; border: none; border-right: 1px solid #dee2e6; background: white; cursor: pointer; font-size: 11px; font-weight: 600; transition: all 0.15s; color: #495057; }
+        .format-btn.active { background: #045E8C; color: white; }
+        .format-btn:hover { background: #f8f9fa; }
+        .format-btn.active:hover { background: #034a6f; }
+        .color-input { width: 32px; height: 28px; border: none; border-left: 1px solid #dee2e6; cursor: pointer; transition: all 0.2s; }
+        .color-input:hover { background: #f8f9fa; }
+        .hex-input { width: 60px; height: 28px; border: none; border-left: 1px solid #dee2e6; padding: 0 6px; font-size: 11px; font-family: monospace; text-transform: uppercase; }
+        .hex-input:focus { outline: none; background: #f8f9fa; }
+        .spacer-input { width: 60px; padding: 5px 8px; border: 1px solid #dee2e6; border-radius: 6px; font-size: 13px; transition: all 0.2s; }
+        .spacer-input:focus { outline: none; border-color: #045E8C; box-shadow: 0 0 0 3px rgba(4,94,140,0.1); }
+        .preview-container { flex: 1; overflow-y: auto; padding: 40px; background: #f8f9fa; display: flex; flex-direction: column; }
+        .preview-mode-toggle { display: flex; justify-content: center; margin-bottom: 20px; }
+        .mode-btn-group { display: inline-flex; background: white; border-radius: 8px; padding: 4px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); border: 1px solid #dee2e6; }
+        .mode-btn { padding: 8px 24px; border: none; background: transparent; cursor: pointer; font-size: 13px; font-weight: 600; color: #6c757d; border-radius: 6px; transition: all 0.2s; }
+        .mode-btn.active { background: #045E8C; color: white; box-shadow: 0 2px 4px rgba(4,94,140,0.2); }
+        .mode-btn:hover:not(.active) { background: #f8f9fa; color: #495057; }
+        .preview-wrapper { max-width: 650px; margin: 0 auto; background: white; padding: 40px; border: none; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); }
+        .email-placeholder { padding: 0 0 30px 0; margin-bottom: 30px; color: #6c757d; font-size: 14px; line-height: 1.6; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
+        .email-placeholder p { margin: 0 0 12px 0; }
+        .email-placeholder p:last-child { margin-bottom: 0; }
+        .copy-btn { padding: 8px 16px; background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 13px; font-weight: 500; transition: all 0.2s; box-shadow: 0 2px 6px rgba(16,185,129,0.3); }
+        .copy-btn:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(16,185,129,0.4); }
+        .copy-btn:active { transform: translateY(0); }
+        .paste-btn { padding: 8px 16px; background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 13px; font-weight: 500; transition: all 0.2s; box-shadow: 0 2px 6px rgba(59,130,246,0.3); }
+        .paste-btn:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(59,130,246,0.4); }
+        .paste-btn:active { transform: translateY(0); }
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); align-items: center; justify-content: center; z-index: 1000; backdrop-filter: blur(4px); }
+        .modal.show { display: flex; }
+        .modal-content { background: white; padding: 25px; border-radius: 12px; width: 420px; box-shadow: 0 10px 40px rgba(0,0,0,0.2); }
+        .modal-header { font-size: 18px; font-weight: 600; margin-bottom: 18px; color: #212529; }
+        .modal-body input { width: 100%; padding: 10px 12px; border: 1px solid #dee2e6; border-radius: 8px; font-size: 14px; transition: all 0.2s; }
+        .modal-body input:focus { outline: none; border-color: #045E8C; box-shadow: 0 0 0 3px rgba(4,94,140,0.1); }
+        .modal-body textarea { width: 100%; min-height: 200px; padding: 12px; border: 1px solid #dee2e6; border-radius: 8px; font-size: 13px; font-family: monospace; transition: all 0.2s; resize: vertical; }
+        .modal-body textarea:focus { outline: none; border-color: #045E8C; box-shadow: 0 0 0 3px rgba(4,94,140,0.1); }
+        .paste-modal-content { width: 600px; }
+        .modal-footer { margin-top: 20px; display: flex; gap: 10px; justify-content: flex-end; }
+        .modal-footer button { padding: 9px 18px; border: none; border-radius: 8px; cursor: pointer; font-size: 13px; font-weight: 500; transition: all 0.2s; }
+        .modal-footer .btn-primary { background: #045E8C; color: white; }
+        .modal-footer .btn-primary:hover { background: #034a6f; transform: translateY(-1px); box-shadow: 0 2px 8px rgba(4,94,140,0.3); }
+        .modal-footer .btn-secondary { background: #e9ecef; color: #495057; }
+        .modal-footer .btn-secondary:hover { background: #dee2e6; }
+        .gear-btn { width: 28px; height: 28px; border: 1px solid #dee2e6; background: white; cursor: pointer; font-size: 16px; transition: all 0.15s; color: #495057; display: flex; align-items: center; justify-content: center; border-radius: 6px; margin-right: 4px; }
+        .gear-btn:hover { background: #f8f9fa; border-color: #ced4da; }
+        .config-modal { width: 500px; }
+        .config-zones { display: flex; flex-direction: column; gap: 20px; margin-top: 15px; }
+        .config-zone { background: #f8f9fa; border-radius: 8px; padding: 12px; min-height: 80px; }
+        .config-zone.punctuation-zone { background: #fff9e6; min-height: 50px; }
+        .config-zone-header { font-size: 11px; font-weight: 700; color: #6c757d; margin-bottom: 10px; text-transform: uppercase; letter-spacing: 0.5px; }
+        .config-items-container { display: flex; flex-wrap: wrap; gap: 6px; min-height: 40px; }
+        .config-item { height: 22px; padding: 0 12px; background: #045E8C; color: white; border: none; border-radius: 100px; cursor: move; font-size: 12px; font-weight: 500; transition: all 0.15s ease; display: inline-flex; align-items: center; justify-content: center; user-select: none; position: relative; }
+        .config-item::before { content: ''; position: absolute; top: -8px; bottom: -8px; left: -8px; right: -8px; }
+        .config-item:hover { background: #034a6f; box-shadow: 0 2px 8px rgba(4,94,140,0.3); transform: translateY(-1px); }
+        .config-item.punctuation { background: #f59e0b; width: 28px; padding: 0; font-size: 14px; font-weight: 600; }
+        .config-item.punctuation:hover { background: #d97706; }
+        .config-item.dragging { opacity: 0.3; transform: scale(0.95); }
+        .config-item.drop-before { margin-left: 40px; transition: margin-left 0.15s ease; }
+        .config-item.drop-after { margin-right: 40px; transition: margin-right 0.15s ease; }
+        .config-zone.drag-over { background: #e0e7ff; }
+        .line-container { margin-bottom: 12px; }
+        .line-header { font-size: 10px; color: #6c757d; margin-bottom: 6px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.3px; display: flex; align-items: center; justify-content: space-between; }
+        .line-delete-btn { width: 18px; height: 18px; border: 1px solid #dee2e6; background: white; cursor: pointer; font-size: 10px; color: #dc3545; border-radius: 4px; display: flex; align-items: center; justify-content: center; transition: all 0.2s; }
+        .line-delete-btn:hover { background: #dc3545; color: white; border-color: #dc3545; }
+        .line-items { display: flex; flex-wrap: wrap; gap: 6px; min-height: 32px; padding: 8px; background: white; border-radius: 6px; border: 2px dashed #dee2e6; }
+        .add-line-btn { padding: 6px 12px; background: #e9ecef; color: #495057; border: 1px dashed #ced4da; border-radius: 6px; cursor: pointer; font-size: 11px; font-weight: 600; margin-top: 8px; transition: all 0.2s; }
+        .add-line-btn:hover { background: #dee2e6; border-color: #adb5bd; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="header-left">
+            <img src="https://lirp.cdn-website.com/c21e3793/dms3rep/multi/opt/D3-CondStack-Wht-Lg-Sq-1920w.png" alt="Logo" class="header-logo">
+            <h1>Email Signature Builder for ServiceM8</h1>
+        </div>
+        <div style="display: flex; align-items: center; gap: 15px;">
+            <button class="copy-btn" onclick="S.copy()">Copy Template</button>
+            <button class="paste-btn" onclick="S.openPasteModal()">Paste Template</button>
+            <div class="version">v1.0</div>
+        </div>
+    </div>
+    <div class="container">
+        <div class="left-panel">
+            <div class="controls">
+                <div class="controls-left">
+                    <button onclick="S.addSpacer()">+ Spacer</button>
+                    <button onclick="S.addText()">+ Static Text</button>
+                </div>
+                <div class="global-controls-wrapper">
+                    <div class="global-font-wrapper">
+                        <svg class="font-size-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="4 7 4 4 20 4 20 7"></polyline>
+                            <line x1="9" y1="20" x2="15" y2="20"></line>
+                            <line x1="12" y1="4" x2="12" y2="20"></line>
+                        </svg>
+                        <select id="globalFontSize" class="global-font-select" onchange="S.updateGlobalFontSize(this.value)">
+                            <option value="10">10</option>
+                            <option value="11">11</option>
+                            <option value="12">12</option>
+                            <option value="13">13</option>
+                            <option value="14" selected>14</option>
+                            <option value="16">16</option>
+                            <option value="18">18</option>
+                            <option value="20">20</option>
+                            <option value="22">22</option>
+                            <option value="24">24</option>
+                        </select>
+                    </div>
+                    <label>
+                        <svg class="spacing-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="3" y1="8" x2="16" y2="8"></line>
+                            <line x1="3" y1="16" x2="16" y2="16"></line>
+                            <polyline points="19 11 19 8 19 5" stroke-width="1.5"></polyline>
+                            <polyline points="19 13 19 16 19 19" stroke-width="1.5"></polyline>
+                            <line x1="17" y1="12" x2="21" y2="12" stroke-width="1.5"></line>
+                        </svg>
+                        <span class="spacing-wrapper"><input type="number" id="spacing" value="10" min="0"></span>
+                    </label>
+                </div>
+            </div>
+            <div class="items-container">
+                <div class="zone" id="active"><div class="zone-header">Active Items</div></div>
+                <div class="zone" id="inactive"><div class="zone-header">Inactive Items</div></div>
+            </div>
+        </div>
+        <div class="right-panel">
+            <div class="preview-container">
+                <div class="preview-mode-toggle">
+                    <div class="mode-btn-group">
+                        <button class="mode-btn active" onclick="S.setPreviewMode('code')">Code</button>
+                        <button class="mode-btn" onclick="S.setPreviewMode('sample')">Sample</button>
+                    </div>
+                </div>
+                <div class="preview-wrapper">
+                    <div class="email-placeholder">
+                        <p>Hey Jim,</p>
+                        <p>So I was thinking about the quarterly report and I have to say - we are CRUSHING it. Like Michael Jordan in the '90s. Speaking of which, we should definitely celebrate with a party. Maybe Pizza by Alfredo? Wait, no - Alfredo's Pizza Cafe. There's a big difference. Anyway, let's sync up about the client meeting. I have some really "great" ideas and new jokes to run by you!</p>
+                    </div>
+                    <div class="preview" id="preview"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="modal" id="prefixModal">
+        <div class="modal-content">
+            <div class="modal-header" id="prefixModalTitle">Set Prefix</div>
+            <div class="modal-body">
+                <input type="text" id="prefixInput" placeholder="Enter prefix text...">
+            </div>
+            <div class="modal-footer">
+                <button class="btn-secondary" onclick="S.closePrefix()">Cancel</button>
+                <button class="btn-primary" onclick="S.savePrefix()">Save</button>
+            </div>
+        </div>
+    </div>
+    
+    <div class="modal" id="configModal">
+        <div class="modal-content config-modal">
+            <div class="modal-header" id="configModalTitle">Configure Field</div>
+            <div class="modal-body">
+                <div class="config-zones">
+                    <div class="config-zone">
+                        <div class="config-zone-header">Active Elements</div>
+                        <div id="configActive"></div>
+                    </div>
+                    <div class="config-zone">
+                        <div class="config-zone-header">Available Elements</div>
+                        <div class="config-items-container" id="configInactive"></div>
+                    </div>
+                    <div class="config-zone punctuation-zone">
+                        <div class="config-zone-header">Punctuation</div>
+                        <div class="config-items-container" id="configPunctuation"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-secondary" onclick="S.closeConfig()">Cancel</button>
+                <button class="btn-primary" onclick="S.saveConfig()">Save</button>
+            </div>
+        </div>
+    </div>
+    
+    <div class="modal" id="fontSizeModal">
+        <div class="modal-content">
+            <div class="modal-header">Font Size Setting</div>
+            <div class="modal-body">
+                <p style="margin: 0; color: #495057; line-height: 1.5;">This size matches the global font size. Should this item follow the global setting (auto-update when global changes) or remain fixed at this size?</p>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-secondary" onclick="fontSizeModalCallback(false); document.getElementById('fontSizeModal').classList.remove('show');">Stay Fixed</button>
+                <button class="btn-primary" onclick="fontSizeModalCallback(true);">Follow Global</button>
+            </div>
+        </div>
+    </div>
+    
+    <div class="modal" id="pasteModal">
+        <div class="modal-content paste-modal-content">
+            <div class="modal-header">Paste Email Signature</div>
+            <div class="modal-body">
+                <p style="margin: 0 0 12px 0; color: #6c757d; font-size: 13px;">Paste your current email signature content from ServiceM8. The builder will parse the merge fields and formatting to reconstruct your signature.</p>
+                <textarea id="pasteInput" placeholder="Paste your ServiceM8 email signature content here..."></textarea>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-secondary" onclick="S.closePasteModal()">Cancel</button>
+                <button class="btn-primary" onclick="S.pasteTemplate()">Import</button>
+            </div>
+        </div>
+    </div>
+    <script>
+        let fontSizeModalCallback = null;
+        
+        const S = {
+            items: [],
+            nextId: 1,
+            globalFontSize: 14,
+            currentPrefixId: null,
+            previewMode: 'code',
+            
+            init() {
+                const defaults = [
+                    {label:'Staff Name',field:'{staff.first} {staff.last}',active:true,configurable:true,config:{active:[{id:'first',label:'First Name',field:'{staff.first}'},{id:'last',label:'Last Name',field:'{staff.last}'}],inactive:[]}},
+                    {label:'Staff Job Title',field:'{staff.job_title}',active:true},
+                    {label:'Company Name',field:'{vendor.name}',active:true},
+                    {label:'Company Address',field:'{location.line1}',active:true,configurable:true,maxLines:5,config:{active:[[{id:'line1',label:'Address Line 1',field:'{location.line1}'}],[{id:'city',label:'City',field:'{location.city}'},{id:'state',label:'State',field:'{location.state}'},{id:'zip',label:'Post Code',field:'{location.post_code}'}]],inactive:[{id:'line2',label:'Address Line 2',field:'{location.line2}'},{id:'line3',label:'Address Line 3',field:'{location.line3}'},{id:'country',label:'Country',field:'{location.country}'}]}},
+                    {label:'Company Phone',field:'{location.phone_1}',active:true},
+                    {label:'Company Website',field:'{vendor.website}',active:true},
+                    {label:'Company Logo',field:'{company_logo}',active:true},
+                    {label:'Company Fax',field:'{location.fax}',active:false},
+                    {label:'Company Mobile',field:'{location.mobile}',active:false},
+                    {label:'Staff Mobile Phone',field:'{calculation.current_user_mobile}',active:false},
+                    {label:'Staff Email',field:'{calculation.current_user_email}',active:false},
+                    {label:'Staff Licence Number',field:'{calculation.current_user_customfield_licence_number}',active:false},
+                    {label:'BPAY Reference',field:'{company.bpay_customer_ref}',active:false}
+                ];
+                defaults.forEach(d => {
+                    const item = {id:this.nextId++,label:d.label,field:d.field,active:d.active!==undefined?d.active:true,prefix:'',bold:false,italic:false,underline:false,color:'#000000',fontSize:null,type:'merge',configurable:d.configurable||false,config:d.config||null,maxLines:d.maxLines||1};
+                    this.items.push(item);
+                    // Update field from config if configurable
+                    if (item.configurable && item.config) {
+                        this.updateFieldFromConfig(item);
+                    }
+                });
+                this.render();
+                this.updatePreview();
+                document.getElementById('spacing').addEventListener('input', () => this.updatePreview());
+            },
+            
+            render() {
+                const active = this.items.filter(i => i.active);
+                const inactive = this.items.filter(i => !i.active);
+                document.getElementById('active').innerHTML = '<div class="zone-header">Active Items</div>' + active.map(i => this.renderItem(i)).join('');
+                document.getElementById('inactive').innerHTML = '<div class="zone-header">Inactive Items</div>' + inactive.map(i => this.renderItem(i)).join('');
+                this.attachDragEvents();
+            },
+            
+            renderItem(item) {
+                if (item.type === 'spacer') return `<div class="item spacer" draggable="true" data-id="${item.id}"><div class="item-left"><span>Spacer (${item.spacing||20}px)</span></div>${item.active ? `<input type="number" class="spacer-input" value="${item.spacing||20}" onchange="S.updateSpacer(${item.id}, this.value)">` : ''}</div>`;
+                const isStatic = item.type === 'static';
+                const label = isStatic ? `<input type="text" value="${item.field}" onchange="S.updateStaticText(${item.id}, this.value)">` : item.label;
+                const prefixBtn = item.active ? `<button class="prefix-btn ${item.prefix?'active':''}" onclick="S.openPrefix(${item.id})">prefix</button>` : '';
+                const gearBtn = item.active && item.configurable ? `<button class="gear-btn" onclick="S.openConfig(${item.id})">⚙</button>` : '';
+                const currentFontSize = item.fontSize ?? this.globalFontSize;
+                const isManual = item.fontSize !== null;
+                const fontSizeClass = isManual ? 'manual' : 'global';
+                const fontSizeSelect = item.active ? `<select class="font-size-select ${fontSizeClass}" onchange="S.handleFontSizeChange(S.getItem(${item.id}), this.value)"><option value="10" ${currentFontSize===10?'selected':''}>10px</option><option value="11" ${currentFontSize===11?'selected':''}>11px</option><option value="12" ${currentFontSize===12?'selected':''}>12px</option><option value="13" ${currentFontSize===13?'selected':''}>13px</option><option value="14" ${currentFontSize===14?'selected':''}>14px</option><option value="16" ${currentFontSize===16?'selected':''}>16px</option><option value="18" ${currentFontSize===18?'selected':''}>18px</option><option value="20" ${currentFontSize===20?'selected':''}>20px</option><option value="22" ${currentFontSize===22?'selected':''}>22px</option><option value="24" ${currentFontSize===24?'selected':''}>24px</option></select>` : '';
+                const controls = item.active ? `<div class="item-controls">${gearBtn}<div class="format-control-bar">${fontSizeSelect}<div class="format-buttons"><button class="format-btn ${item.bold?'active':''}" onclick="S.toggleFormat(${item.id},'bold')">B</button><button class="format-btn ${item.italic?'active':''}" onclick="S.toggleFormat(${item.id},'italic')" style="font-style:italic">I</button><button class="format-btn ${item.underline?'active':''}" onclick="S.toggleFormat(${item.id},'underline')" style="text-decoration:underline">U</button></div><input type="color" class="color-input" id="color-${item.id}" value="${item.color}" onchange="S.updateColor(${item.id}, this.value)"><input type="text" class="hex-input" id="hex-${item.id}" value="${item.color}" onchange="S.updateColorFromHex(${item.id}, this.value)" maxlength="7" placeholder="#000000"></div></div>` : '';
+                return `<div class="item ${isStatic?'static-text':''}" draggable="true" data-id="${item.id}"><div class="item-left">${prefixBtn}<span class="item-label">${label}</span></div>${controls}</div>`;
+            },
+            
+            attachDragEvents() {
+                document.querySelectorAll('.item').forEach(el => {
+                    el.ondragstart = (e) => {
+                        this.draggedItem = this.getItem(parseInt(e.currentTarget.dataset.id));
+                        e.currentTarget.classList.add('dragging');
+                        e.dataTransfer.effectAllowed = 'move';
+                    };
+                    
+                    el.ondragend = (e) => {
+                        e.currentTarget.classList.remove('dragging');
+                        document.querySelectorAll('.item').forEach(item => item.classList.remove('drag-over'));
+                    };
+                    
+                    el.ondragover = (e) => {
+                        e.preventDefault();
+                        if (!this.draggedItem) return;
+                        const afterElement = this.getDragAfterElement(e.currentTarget.parentElement, e.clientY);
+                        const dragging = document.querySelector('.dragging');
+                        if (afterElement == null) {
+                            e.currentTarget.parentElement.appendChild(dragging);
+                        } else {
+                            e.currentTarget.parentElement.insertBefore(dragging, afterElement);
+                        }
+                    };
+                    
+                    el.ondragenter = (e) => {
+                        if (e.target.classList.contains('item') && !e.target.classList.contains('dragging')) {
+                            e.target.classList.add('drag-over');
+                        }
+                    };
+                    
+                    el.ondragleave = (e) => {
+                        if (e.target.classList.contains('item')) {
+                            e.target.classList.remove('drag-over');
+                        }
+                    };
+                });
+                
+                document.querySelectorAll('.zone').forEach(zone => {
+                    zone.ondragover = (e) => {
+                        e.preventDefault();
+                        if (!this.draggedItem) return;
+                        const afterElement = this.getDragAfterElement(zone, e.clientY);
+                        const dragging = document.querySelector('.dragging');
+                        if (afterElement == null) {
+                            zone.appendChild(dragging);
+                        } else {
+                            zone.insertBefore(dragging, afterElement);
+                        }
+                    };
+                    
+                    zone.ondrop = (e) => {
+                        e.preventDefault();
+                        if (!this.draggedItem) return;
+                        
+                        const newActive = zone.id === 'active';
+                        
+                        // Check if spacer or static text being moved to inactive - delete it
+                        if ((this.draggedItem.type === 'spacer' || this.draggedItem.type === 'static') && !newActive) {
+                            this.items = this.items.filter(i => i.id !== this.draggedItem.id);
+                            this.render();
+                            this.updatePreview();
+                            return;
+                        }
+                        
+                        // Get new order from DOM BEFORE updating active status
+                        const itemElements = Array.from(zone.querySelectorAll('.item'));
+                        const newOrder = itemElements.map(el => parseInt(el.dataset.id)).filter(id => !isNaN(id));
+                        
+                        // Get items from the other zone (before we change draggedItem's active status)
+                        const otherZoneItems = this.items.filter(i => i.active !== newActive && i.id !== this.draggedItem.id);
+                        
+                        // Now update active status
+                        this.draggedItem.active = newActive;
+                        
+                        // Reorder items array
+                        const reorderedItems = [];
+                        
+                        // Add items in new order
+                        newOrder.forEach(id => {
+                            const item = this.items.find(i => i.id === id);
+                            if (item) reorderedItems.push(item);
+                        });
+                        
+                        // Combine with other zone items
+                        this.items = newActive ? [...reorderedItems, ...otherZoneItems] : [...otherZoneItems, ...reorderedItems];
+                        
+                        this.render();
+                        this.updatePreview();
+                    };
+                });
+            },
+            
+            getDragAfterElement(container, y) {
+                const draggableElements = [...container.querySelectorAll('.item:not(.dragging)')];
+                return draggableElements.reduce((closest, child) => {
+                    const box = child.getBoundingClientRect();
+                    const offset = y - box.top - box.height / 2;
+                    if (offset < 0 && offset > closest.offset) {
+                        return { offset: offset, element: child };
+                    } else {
+                        return closest;
+                    }
+                }, { offset: Number.NEGATIVE_INFINITY }).element;
+            },
+            
+            getItem(id) { return this.items.find(i => i.id === id); },
+            
+            toggleFormat(id, format) { const item = this.getItem(id); if (item) { item[format] = !item[format]; this.render(); this.updatePreview(); } },
+            
+            updateColor(id, color) {
+                const item = this.getItem(id);
+                if (item) {
+                    item.color = color;
+                    const hexInput = document.getElementById(`hex-${id}`);
+                    if (hexInput) hexInput.value = color;
+                    this.updatePreview();
+                }
+            },
+            
+            updateColorFromHex(id, hex) {
+                hex = hex.trim();
+                if (!hex.startsWith('#')) hex = '#' + hex;
+                if (/^#[0-9A-Fa-f]{6}$/.test(hex)) {
+                    const item = this.getItem(id);
+                    if (item) {
+                        item.color = hex;
+                        const colorInput = document.getElementById(`color-${id}`);
+                        if (colorInput) colorInput.value = hex;
+                        this.updatePreview();
+                    }
+                }
+            },
+            
+            updateSpacer(id, value) { const item = this.getItem(id); if (item) { item.spacing = parseInt(value)||20; this.render(); this.updatePreview(); } },
+            updateStaticText(id, value) { const item = this.getItem(id); if (item) { item.field = value; this.updatePreview(); } },
+            updateFontSize(id, value) { const item = this.getItem(id); if (item) { item.fontSize = parseInt(value); this.updatePreview(); } },
+            
+            openPrefix(id) { this.currentPrefixId = id; const item = this.getItem(id); if (item) { document.getElementById('prefixModalTitle').textContent = `Set ${item.label} Prefix`; document.getElementById('prefixInput').value = item.prefix || ''; } document.getElementById('prefixModal').classList.add('show'); },
+            closePrefix() { document.getElementById('prefixModal').classList.remove('show'); this.currentPrefixId = null; },
+            savePrefix() { const value = document.getElementById('prefixInput').value; if (this.currentPrefixId) { const item = this.getItem(this.currentPrefixId); if (item) { item.prefix = value; this.render(); this.updatePreview(); } } this.closePrefix(); },
+            
+            openConfig(id) {
+                this.currentConfigId = id;
+                const item = this.getItem(id);
+                if (!item || !item.configurable) return;
+                document.getElementById('configModalTitle').textContent = `Configure ${item.label}`;
+                this.renderConfigModal(item);
+                document.getElementById('configModal').classList.add('show');
+            },
+            
+            closeConfig() {
+                document.getElementById('configModal').classList.remove('show');
+                this.currentConfigId = null;
+                this.tempConfig = null;
+            },
+            
+            renderConfigModal(item) {
+                if (!item || !item.config) {
+                    console.error('No config found for item:', item);
+                    return;
+                }
+                this.tempConfig = JSON.parse(JSON.stringify(item.config));
+                console.log('Rendering config:', this.tempConfig);
+                this.refreshConfigModal(item);
+            },
+            
+            refreshConfigModal(item) {
+                if (!this.tempConfig) return;
+                console.log('Refreshing modal with tempConfig:', this.tempConfig);
+                const isMultiLine = item && item.maxLines > 1;
+                
+                // Render punctuation section (static, always available)
+                const punctuations = [
+                    {id:'period',label:'.',char:'.'},
+                    {id:'comma',label:',',char:','},
+                    {id:'space',label:'␣',char:' '},
+                    {id:'slash',label:'/',char:'/'},
+                    {id:'dash',label:'-',char:'-'}
+                ];
+                const punctuationHtml = punctuations.map(p => 
+                    `<div class="config-item punctuation" draggable="true" data-id="${p.id}" data-punctuation="true">${p.label}</div>`
+                ).join('');
+                document.getElementById('configPunctuation').innerHTML = punctuationHtml;
+                
+                if (isMultiLine) {
+                    let activeHtml = '';
+                    this.tempConfig.active.forEach((line, lineIdx) => {
+                        activeHtml += `<div class="line-container" data-line="${lineIdx}">`;
+                        activeHtml += `<div class="line-header"><span>Line ${lineIdx + 1}</span><button class="line-delete-btn" onclick="S.deleteConfigLine(${lineIdx})" title="Delete Line">🗑️</button></div>`;
+                        activeHtml += `<div class="line-items" data-line="${lineIdx}">`;
+                        line.forEach(el => {
+                            const isPunct = el.isPunctuation ? 'punctuation' : '';
+                            const punctAttr = el.isPunctuation ? 'data-punctuation="instance"' : '';
+                            activeHtml += `<div class="config-item ${isPunct}" draggable="true" data-line="${lineIdx}" data-id="${el.id}" ${punctAttr}>${el.label}</div>`;
+                        });
+                        activeHtml += '</div></div>';
+                    });
+                    activeHtml += '<button class="add-line-btn" onclick="S.addConfigLine()">+ Add Line</button>';
+                    document.getElementById('configActive').innerHTML = activeHtml;
+                } else {
+                    const itemsHtml = this.tempConfig.active.map(el => {
+                        const isPunct = el.isPunctuation ? 'punctuation' : '';
+                        const punctAttr = el.isPunctuation ? 'data-punctuation="instance"' : '';
+                        return `<div class="config-item ${isPunct}" draggable="true" data-id="${el.id}" ${punctAttr}>${el.label}</div>`;
+                    }).join('');
+                    document.getElementById('configActive').innerHTML = `<div class="config-items-container" id="configActiveSingle">${itemsHtml}</div>`;
+                }
+                
+                const inactiveHtml = this.tempConfig.inactive.map(el => 
+                    `<div class="config-item" draggable="true" data-id="${el.id}">${el.label}</div>`
+                ).join('');
+                console.log('Inactive items:', this.tempConfig.inactive.length, inactiveHtml);
+                document.getElementById('configInactive').innerHTML = inactiveHtml;
+                
+                this.attachConfigDragEvents();
+            },
+            
+            attachConfigDragEvents() {
+                this.draggedConfigId = null;
+                this.draggedFromLine = null;
+                this.draggedIsPunctuation = false;
+                this.currentDropTarget = null;
+                this.currentDropPosition = null;
+                
+                const items = document.querySelectorAll('.config-item');
+                items.forEach(el => {
+                    el.ondragstart = (e) => {
+                        this.draggedConfigId = e.currentTarget.dataset.id;
+                        this.draggedFromLine = e.currentTarget.dataset.line;
+                        // Check if it's a punctuation template OR instance
+                        this.draggedIsPunctuation = e.currentTarget.dataset.punctuation === 'true' || e.currentTarget.dataset.punctuation === 'instance';
+                        e.currentTarget.classList.add('dragging');
+                        e.dataTransfer.effectAllowed = 'move';
+                        e.dataTransfer.setData('text/plain', this.draggedConfigId);
+                        console.log('Drag start:', this.draggedConfigId, 'isPunctuation:', this.draggedIsPunctuation);
+                    };
+                    el.ondragend = (e) => {
+                        e.currentTarget.classList.remove('dragging');
+                        this.clearDropSpacing();
+                        this.draggedConfigId = null;
+                        this.draggedFromLine = null;
+                        this.draggedIsPunctuation = false;
+                    };
+                    
+                    el.ondragover = (e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        e.dataTransfer.dropEffect = 'move';
+                        
+                        // Find the actual config-item element (might be hovering over pseudo-element)
+                        let targetItem = e.target;
+                        if (!targetItem.classList.contains('config-item')) {
+                            targetItem = e.target.closest('.config-item');
+                        }
+                        
+                        if (targetItem && this.draggedConfigId && this.draggedConfigId !== targetItem.dataset.id && targetItem.classList.contains('config-item')) {
+                            this.updateDropSpacing(targetItem, e);
+                        }
+                    };
+                    
+                    el.ondrop = (e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        
+                        // Find the actual config-item element
+                        let targetItem = e.target;
+                        if (!targetItem.classList.contains('config-item')) {
+                            targetItem = e.target.closest('.config-item');
+                        }
+                        
+                        this.clearDropSpacing();
+                        
+                        if (targetItem && this.draggedConfigId && this.draggedConfigId !== targetItem.dataset.id) {
+                            const item = this.getItem(this.currentConfigId);
+                            const isMultiLine = item && item.maxLines > 1;
+                            const targetId = targetItem.dataset.id;
+                            const targetLine = targetItem.dataset.line;
+                            const isInstance = this.draggedConfigId.startsWith('punct_');
+                            
+                            console.log('Dropping on item:', targetId, 'from:', this.draggedConfigId, 'isPunctuation:', this.draggedIsPunctuation, 'isInstance:', isInstance);
+                            
+                            // If dragging a punctuation TEMPLATE, create new instance
+                            // If dragging an INSTANCE, move it like a regular element
+                            if (this.draggedIsPunctuation && !isInstance) {
+                                // Create new punctuation instance from template
+                                if (isMultiLine && targetLine !== undefined) {
+                                    this.addPunctuationToLine(this.draggedConfigId, targetId, parseInt(targetLine));
+                                } else if (!isMultiLine) {
+                                    this.addPunctuationToActive(this.draggedConfigId, targetId);
+                                }
+                            } else {
+                                // Move existing element (regular or punctuation instance)
+                                if (isMultiLine && targetLine !== undefined) {
+                                    this.reorderConfigInLine(this.draggedConfigId, targetId, parseInt(targetLine));
+                                } else if (!isMultiLine) {
+                                    this.reorderConfigInActive(this.draggedConfigId, targetId);
+                                }
+                            }
+                            this.refreshConfigModal(item);
+                        }
+                    };
+                });
+                
+                const inactiveZone = document.getElementById('configInactive');
+                if (inactiveZone) {
+                    inactiveZone.ondragover = (e) => {
+                        // Don't allow punctuation to be dropped in inactive
+                        if (this.draggedIsPunctuation) {
+                            e.dataTransfer.dropEffect = 'none';
+                            return;
+                        }
+                        e.preventDefault();
+                        e.dataTransfer.dropEffect = 'move';
+                        inactiveZone.parentElement.classList.add('drag-over');
+                    };
+                    inactiveZone.ondragleave = (e) => {
+                        inactiveZone.parentElement.classList.remove('drag-over');
+                    };
+                    inactiveZone.ondrop = (e) => {
+                        // Don't allow punctuation to be dropped in inactive
+                        if (this.draggedIsPunctuation) {
+                            return;
+                        }
+                        e.preventDefault();
+                        inactiveZone.parentElement.classList.remove('drag-over');
+                        if (this.draggedConfigId) {
+                            console.log('Dropping to inactive:', this.draggedConfigId);
+                            this.moveConfigToInactive(this.draggedConfigId);
+                            const item = this.getItem(this.currentConfigId);
+                            this.refreshConfigModal(item);
+                        }
+                    };
+                }
+                
+                // Handle punctuation zone - dropping punctuation instances here removes them
+                const punctuationZone = document.getElementById('configPunctuation');
+                if (punctuationZone) {
+                    punctuationZone.ondragover = (e) => {
+                        // Only accept punctuation instances (not templates) being removed
+                        if (!this.draggedConfigId || !this.draggedConfigId.startsWith('punct_')) {
+                            return;
+                        }
+                        e.preventDefault();
+                        e.dataTransfer.dropEffect = 'move';
+                        punctuationZone.parentElement.style.opacity = '0.5';
+                    };
+                    punctuationZone.ondragleave = (e) => {
+                        punctuationZone.parentElement.style.opacity = '1';
+                    };
+                    punctuationZone.ondrop = (e) => {
+                        e.preventDefault();
+                        punctuationZone.parentElement.style.opacity = '1';
+                        // If dragging a punctuation instance (not the template), remove it
+                        if (this.draggedConfigId && this.draggedConfigId.startsWith('punct_')) {
+                            console.log('Removing punctuation instance:', this.draggedConfigId);
+                            this.findAndRemoveConfigElement(this.draggedConfigId);
+                            const item = this.getItem(this.currentConfigId);
+                            this.refreshConfigModal(item);
+                        }
+                    };
+                }
+                
+                const item = this.getItem(this.currentConfigId);
+                const isMultiLine = item && item.maxLines > 1;
+                
+                if (isMultiLine) {
+                    document.querySelectorAll('.line-items').forEach(lineEl => {
+                        lineEl.ondragover = (e) => {
+                            e.preventDefault();
+                            e.dataTransfer.dropEffect = 'move';
+                            // Always allow drop on line container
+                            if (e.target.classList.contains('line-items') || e.target.closest('.line-items')) {
+                                const container = e.target.classList.contains('line-items') ? e.target : e.target.closest('.line-items');
+                                container.style.borderColor = '#045E8C';
+                            }
+                        };
+                        lineEl.ondragleave = (e) => {
+                            if (e.target === lineEl) {
+                                lineEl.style.borderColor = '#dee2e6';
+                            }
+                        };
+                        lineEl.ondrop = (e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            lineEl.style.borderColor = '#dee2e6';
+                            
+                            console.log('Drop on line! draggedConfigId:', this.draggedConfigId);
+                            
+                            if (!this.draggedConfigId) return;
+                            
+                            // Check if we have a remembered drop position from hovering over an item
+                            if (this.currentDropTarget && this.currentDropPosition) {
+                                // Use the remembered position - drop in the gap!
+                                const targetLine = parseInt(this.currentDropTarget.dataset.line);
+                                const targetId = this.currentDropTarget.dataset.id;
+                                const isInstance = this.draggedConfigId.startsWith('punct_');
+                                
+                                if (this.draggedIsPunctuation && !isInstance) {
+                                    this.addPunctuationToLine(this.draggedConfigId, targetId, targetLine);
+                                } else {
+                                    this.reorderConfigInLine(this.draggedConfigId, targetId, targetLine);
+                                }
+                                this.clearDropSpacing();
+                                const item = this.getItem(this.currentConfigId);
+                                this.refreshConfigModal(item);
+                                return;
+                            }
+                            
+                            // Append to end of line (works for empty or non-empty lines)
+                            const container = e.target.classList.contains('line-items') ? e.target : e.target.closest('.line-items');
+                            if (container && this.draggedConfigId) {
+                                const targetLine = parseInt(container.dataset.line);
+                                const isInstance = this.draggedConfigId.startsWith('punct_');
+                                console.log('Dropping to line (append):', targetLine, this.draggedConfigId);
+                                if (this.draggedIsPunctuation && !isInstance) {
+                                    this.addPunctuationToLine(this.draggedConfigId, null, targetLine);
+                                } else {
+                                    this.moveConfigToLine(this.draggedConfigId, targetLine);
+                                }
+                                this.clearDropSpacing();
+                                const item = this.getItem(this.currentConfigId);
+                                this.refreshConfigModal(item);
+                            }
+                        };
+                    });
+                } else {
+                    const activeZone = document.getElementById('configActiveSingle');
+                    if (activeZone) {
+                        activeZone.ondragover = (e) => {
+                            e.preventDefault();
+                            e.dataTransfer.dropEffect = 'move';
+                            activeZone.classList.add('drag-over');
+                        };
+                        activeZone.ondragleave = (e) => {
+                            if (e.target === activeZone) {
+                                activeZone.classList.remove('drag-over');
+                            }
+                        };
+                        activeZone.ondrop = (e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            activeZone.classList.remove('drag-over');
+                            
+                            console.log('Drop on active zone! draggedConfigId:', this.draggedConfigId);
+                            
+                            if (!this.draggedConfigId) return;
+                            
+                            // Check if we have a remembered drop position - use it!
+                            if (this.currentDropTarget && this.currentDropPosition) {
+                                const targetId = this.currentDropTarget.dataset.id;
+                                const isInstance = this.draggedConfigId.startsWith('punct_');
+                                
+                                if (this.draggedIsPunctuation && !isInstance) {
+                                    this.addPunctuationToActive(this.draggedConfigId, targetId);
+                                } else {
+                                    this.reorderConfigInActive(this.draggedConfigId, targetId);
+                                }
+                                this.clearDropSpacing();
+                                const item = this.getItem(this.currentConfigId);
+                                this.refreshConfigModal(item);
+                                return;
+                            }
+                            
+                            // Append to end of active (works for empty or non-empty containers)
+                            const isInstance = this.draggedConfigId.startsWith('punct_');
+                            console.log('Dropping to active (append):', this.draggedConfigId);
+                            if (this.draggedIsPunctuation && !isInstance) {
+                                this.addPunctuationToActive(this.draggedConfigId, null);
+                            } else {
+                                this.moveConfigToActive(this.draggedConfigId);
+                            }
+                            this.clearDropSpacing();
+                            const item = this.getItem(this.currentConfigId);
+                            this.refreshConfigModal(item);
+                        };
+                    }
+                }
+            },
+            
+            moveConfigToInactive(id) {
+                console.log('moveConfigToInactive called with:', id);
+                let element = this.findAndRemoveConfigElement(id);
+                console.log('Found element:', element);
+                if (element) {
+                    this.tempConfig.inactive.push(element);
+                    console.log('New inactive array:', this.tempConfig.inactive);
+                }
+            },
+            
+            moveConfigToActive(id) {
+                console.log('moveConfigToActive called with:', id);
+                let element = this.findAndRemoveConfigElement(id);
+                console.log('Found element:', element);
+                if (element) {
+                    this.tempConfig.active.push(element);
+                    console.log('New active array:', this.tempConfig.active);
+                }
+            },
+            
+            updateDropSpacing(targetEl, event) {
+                if (!targetEl || !targetEl.classList.contains('config-item')) return;
+                
+                const rect = targetEl.getBoundingClientRect();
+                const mouseX = event.clientX;
+                const middle = rect.left + rect.width / 2;
+                const newPosition = mouseX < middle ? 'before' : 'after';
+                
+                // Only update if target or position changed
+                if (targetEl === this.currentDropTarget && newPosition === this.currentDropPosition) {
+                    return;
+                }
+                
+                // Clear previous spacing
+                this.clearDropSpacing();
+                
+                // Apply new spacing
+                if (newPosition === 'before') {
+                    targetEl.classList.add('drop-before');
+                } else {
+                    targetEl.classList.add('drop-after');
+                }
+                
+                this.currentDropTarget = targetEl;
+                this.currentDropPosition = newPosition;
+                this.dropPosition = newPosition;
+            },
+            
+            clearDropSpacing() {
+                document.querySelectorAll('.config-item').forEach(el => {
+                    el.classList.remove('drop-before', 'drop-after');
+                });
+                this.currentDropTarget = null;
+                this.currentDropPosition = null;
+                this.dropPosition = null;
+            },
+            
+            getAutoCompoundPunctuation(punctuationId, array, targetId, dropPosition) {
+                // Determine insertion index
+                let insertIdx = array.length;
+                if (targetId) {
+                    insertIdx = array.findIndex(e => e.id === targetId);
+                    if (insertIdx !== -1 && dropPosition === 'after') insertIdx++;
+                }
+                
+                const result = [];
+                const hasSpaceBefore = insertIdx > 0 && array[insertIdx - 1]?.field === ' ';
+                const hasSpaceAfter = insertIdx < array.length && array[insertIdx]?.field === ' ';
+                
+                // Auto-compound rules
+                if (punctuationId === 'period' || punctuationId === 'comma') {
+                    // Add punctuation
+                    result.push(this.generatePunctuationInstance(punctuationId));
+                    // Add space after if not already there
+                    if (!hasSpaceAfter) {
+                        result.push(this.generatePunctuationInstance('space'));
+                    }
+                } else if (punctuationId === 'slash' || punctuationId === 'dash') {
+                    // Add space before if not already there
+                    if (!hasSpaceBefore) {
+                        result.push(this.generatePunctuationInstance('space'));
+                    }
+                    // Add punctuation
+                    result.push(this.generatePunctuationInstance(punctuationId));
+                    // Add space after if not already there
+                    if (!hasSpaceAfter) {
+                        result.push(this.generatePunctuationInstance('space'));
+                    }
+                } else {
+                    // Just space - add as-is
+                    result.push(this.generatePunctuationInstance(punctuationId));
+                }
+                
+                return result;
+            },
+            
+            getPunctuationChar(id) {
+                const punctuations = {
+                    'period': '.',
+                    'comma': ',',
+                    'space': ' ',
+                    'slash': '/',
+                    'dash': '-'
+                };
+                return punctuations[id] || '';
+            },
+            
+            generatePunctuationInstance(punctuationId) {
+                const char = this.getPunctuationChar(punctuationId);
+                return {
+                    id: 'punct_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9),
+                    label: char === ' ' ? '␣' : char,
+                    field: char,
+                    isPunctuation: true
+                };
+            },
+            
+            getConsecutivePunctuationGroup(array, startIdx) {
+                let start = startIdx;
+                let end = startIdx;
+                
+                // Expand backwards
+                while (start > 0 && array[start - 1]?.isPunctuation) {
+                    start--;
+                }
+                
+                // Expand forwards
+                while (end < array.length - 1 && array[end + 1]?.isPunctuation) {
+                    end++;
+                }
+                
+                return { start, end };
+            },
+            
+            addPunctuationToActive(punctuationId, targetId) {
+                const punctsToAdd = this.getAutoCompoundPunctuation(punctuationId, this.tempConfig.active, targetId, this.dropPosition);
+                
+                if (targetId) {
+                    let targetIdx = this.tempConfig.active.findIndex(e => e.id === targetId);
+                    if (targetIdx !== -1) {
+                        if (this.dropPosition === 'after') targetIdx++;
+                        // Insert all punctuation instances
+                        punctsToAdd.forEach((p, i) => {
+                            this.tempConfig.active.splice(targetIdx + i, 0, p);
+                        });
+                    }
+                } else {
+                    punctsToAdd.forEach(p => this.tempConfig.active.push(p));
+                }
+                console.log('Added punctuation to active:', punctsToAdd);
+            },
+            
+            addPunctuationToLine(punctuationId, targetId, targetLine) {
+                while (this.tempConfig.active.length <= targetLine) {
+                    this.tempConfig.active.push([]);
+                }
+                
+                const punctsToAdd = this.getAutoCompoundPunctuation(punctuationId, this.tempConfig.active[targetLine], targetId, this.dropPosition);
+                
+                if (targetId) {
+                    let targetIdx = this.tempConfig.active[targetLine].findIndex(e => e.id === targetId);
+                    if (targetIdx !== -1) {
+                        if (this.dropPosition === 'after') targetIdx++;
+                        // Insert all punctuation instances
+                        punctsToAdd.forEach((p, i) => {
+                            this.tempConfig.active[targetLine].splice(targetIdx + i, 0, p);
+                        });
+                    }
+                } else {
+                    punctsToAdd.forEach(p => this.tempConfig.active[targetLine].push(p));
+                }
+                console.log('Added punctuation to line:', targetLine, punctsToAdd);
+            },
+            
+            reorderConfigInActive(draggedId, targetId) {
+                console.log('Reordering in active:', draggedId, this.dropPosition, targetId);
+                
+                // Find consecutive punctuation group if dragging punctuation
+                const draggedIdx = this.tempConfig.active.findIndex(e => e.id === draggedId);
+                let elementsToMove = [];
+                
+                if (draggedIdx !== -1 && this.tempConfig.active[draggedIdx].isPunctuation) {
+                    // Find all consecutive punctuation
+                    const group = this.getConsecutivePunctuationGroup(this.tempConfig.active, draggedIdx);
+                    // Remove all from array (in reverse to maintain indices)
+                    for (let i = group.end; i >= group.start; i--) {
+                        elementsToMove.unshift(this.tempConfig.active.splice(i, 1)[0]);
+                    }
+                } else {
+                    const draggedEl = this.findAndRemoveConfigElement(draggedId);
+                    if (!draggedEl) return;
+                    elementsToMove = [draggedEl];
+                }
+                
+                // Find new target index (may have shifted after removal)
+                let targetIdx = this.tempConfig.active.findIndex(e => e.id === targetId);
+                if (targetIdx !== -1) {
+                    if (this.dropPosition === 'after') targetIdx++;
+                    // Insert all elements
+                    elementsToMove.forEach((el, i) => {
+                        this.tempConfig.active.splice(targetIdx + i, 0, el);
+                    });
+                    console.log('New order:', this.tempConfig.active.map(e => e.label));
+                }
+            },
+            
+            moveConfigToLine(id, targetLine) {
+                console.log('moveConfigToLine called with:', id, 'to line:', targetLine);
+                let element = this.findAndRemoveConfigElement(id);
+                console.log('Found element:', element);
+                if (element) {
+                    while (this.tempConfig.active.length <= targetLine) {
+                        this.tempConfig.active.push([]);
+                    }
+                    this.tempConfig.active[targetLine].push(element);
+                    console.log('New active config:', this.tempConfig.active);
+                }
+            },
+            
+            reorderConfigInLine(draggedId, targetId, targetLine) {
+                console.log('Reordering in line:', targetLine, draggedId, this.dropPosition, targetId);
+                
+                // Find the element and check if it's punctuation
+                let elementsToMove = [];
+                let sourceLineIdx = null;
+                
+                // Find which line the dragged element is in
+                for (let i = 0; i < this.tempConfig.active.length; i++) {
+                    const idx = this.tempConfig.active[i].findIndex(e => e.id === draggedId);
+                    if (idx !== -1) {
+                        sourceLineIdx = i;
+                        
+                        if (this.tempConfig.active[i][idx].isPunctuation) {
+                            // Get consecutive punctuation group
+                            const group = this.getConsecutivePunctuationGroup(this.tempConfig.active[i], idx);
+                            // Remove all from array (in reverse to maintain indices)
+                            for (let j = group.end; j >= group.start; j--) {
+                                elementsToMove.unshift(this.tempConfig.active[i].splice(j, 1)[0]);
+                            }
+                        } else {
+                            elementsToMove = [this.tempConfig.active[i].splice(idx, 1)[0]];
+                        }
+                        break;
+                    }
+                }
+                
+                if (elementsToMove.length === 0) return;
+                
+                while (this.tempConfig.active.length <= targetLine) {
+                    this.tempConfig.active.push([]);
+                }
+                
+                let targetIdx = this.tempConfig.active[targetLine].findIndex(e => e.id === targetId);
+                if (targetIdx !== -1) {
+                    if (this.dropPosition === 'after') targetIdx++;
+                    // Insert all elements
+                    elementsToMove.forEach((el, i) => {
+                        this.tempConfig.active[targetLine].splice(targetIdx + i, 0, el);
+                    });
+                    console.log('New order in line', targetLine, ':', this.tempConfig.active[targetLine].map(e => e.label));
+                }
+            },
+            
+            findAndRemoveConfigElement(id) {
+                console.log('findAndRemoveConfigElement looking for:', id);
+                console.log('Current config:', JSON.stringify(this.tempConfig));
+                const item = this.getItem(this.currentConfigId);
+                const isMultiLine = item && item.maxLines > 1;
+                
+                if (isMultiLine) {
+                    for (let i = 0; i < this.tempConfig.active.length; i++) {
+                        const idx = this.tempConfig.active[i].findIndex(e => e.id === id);
+                        if (idx !== -1) {
+                            const element = this.tempConfig.active[i].splice(idx, 1)[0];
+                            console.log('Found in active line', i, ':', element);
+                            // DO NOT remove empty lines here - it shifts indices during drag operations
+                            // Empty lines will be cleaned up on save
+                            return element;
+                        }
+                    }
+                } else {
+                    const activeIdx = this.tempConfig.active.findIndex(e => e.id === id);
+                    if (activeIdx !== -1) {
+                        const element = this.tempConfig.active.splice(activeIdx, 1)[0];
+                        console.log('Found in active:', element);
+                        return element;
+                    }
+                }
+                
+                const inactiveIdx = this.tempConfig.inactive.findIndex(e => e.id === id);
+                if (inactiveIdx !== -1) {
+                    const element = this.tempConfig.inactive.splice(inactiveIdx, 1)[0];
+                    console.log('Found in inactive:', element);
+                    return element;
+                }
+                
+                console.log('Element not found!');
+                return null;
+            },
+            
+            addConfigLine() {
+                if (this.tempConfig && this.tempConfig.active) {
+                    this.tempConfig.active.push([]);
+                    const item = this.getItem(this.currentConfigId);
+                    this.refreshConfigModal(item);
+                }
+            },
+            
+            deleteConfigLine(lineIdx) {
+                if (!this.tempConfig || !this.tempConfig.active) return;
+                
+                // Move all items from this line to inactive
+                const lineItems = this.tempConfig.active[lineIdx] || [];
+                lineItems.forEach(item => {
+                    this.tempConfig.inactive.push(item);
+                });
+                
+                // Remove the line
+                this.tempConfig.active.splice(lineIdx, 1);
+                
+                // Refresh the modal
+                const item = this.getItem(this.currentConfigId);
+                this.refreshConfigModal(item);
+            },
+            
+            saveConfig() {
+                if (this.currentConfigId && this.tempConfig) {
+                    const item = this.getItem(this.currentConfigId);
+                    if (item) {
+                        item.config = this.tempConfig;
+                        this.updateFieldFromConfig(item);
+                        this.render();
+                        this.updatePreview();
+                    }
+                }
+                this.closeConfig();
+            },
+            
+            updateFieldFromConfig(item) {
+                if (!item.configurable || !item.config) return;
+                const isMultiLine = item.maxLines > 1;
+                
+                if (isMultiLine) {
+                    // Clean up empty lines when saving
+                    item.config.active = item.config.active.filter(line => line.length > 0);
+                    
+                    const lines = item.config.active.map(line => {
+                        let result = '';
+                        line.forEach((el, idx) => {
+                            result += el.field;
+                            // Smart spacing: add space if current is NOT punctuation AND next is NOT punctuation
+                            if (idx < line.length - 1) {
+                                const nextEl = line[idx + 1];
+                                if (!el.isPunctuation && !nextEl.isPunctuation) {
+                                    result += ' ';
+                                }
+                            }
+                        });
+                        return result;
+                    }).filter(l => l.trim());
+                    item.field = lines.join('\n');
+                } else {
+                    // Smart spacing for single line
+                    let result = '';
+                    item.config.active.forEach((el, idx) => {
+                        result += el.field;
+                        // Smart spacing
+                        if (idx < item.config.active.length - 1) {
+                            const nextEl = item.config.active[idx + 1];
+                            if (!el.isPunctuation && !nextEl.isPunctuation) {
+                                result += ' ';
+                            }
+                        }
+                    });
+                    item.field = result;
+                }
+            },
+            
+            addSpacer() { this.items.push({id:this.nextId++,type:'spacer',active:true,spacing:20}); this.render(); this.updatePreview(); },
+            addText() { this.items.push({id:this.nextId++,label:'Click to edit',field:'Click to edit',type:'static',active:true,prefix:'',bold:false,italic:false,underline:false,color:'#000000',fontSize:null}); this.render(); this.updatePreview(); },
+            
+            getSampleData() {
+                return {
+                    '{staff.first}': 'Michael',
+                    '{staff.last}': 'Scott',
+                    '{staff.job_title}': 'Regional Manager',
+                    '{vendor.name}': 'Dunder Mifflin Paper Company',
+                    '{location.line1}': '1725 Slough Avenue',
+                    '{location.line2}': '',
+                    '{location.line3}': '',
+                    '{location.city}': 'Scranton',
+                    '{location.state}': 'PA',
+                    '{location.post_code}': '18505',
+                    '{location.country}': 'United States',
+                    '{location.phone_1}': '(570) 555-0178',
+                    '{location.fax}': '(570) 555-0179',
+                    '{location.mobile}': '(570) 555-0180',
+                    '{vendor.website}': 'www.dundermifflin.com',
+                    '{calculation.current_user_mobile}': '(570) 555-0147',
+                    '{calculation.current_user_email}': 'mscott@dundermifflin.com',
+                    '{calculation.current_user_customfield_licence_number}': 'PA-MGR-001',
+                    '{company.bpay_customer_ref}': 'DM-SCR-001',
+                    '{company_logo}': '<img src="https://d2t1xqejof9utc.cloudfront.net/screenshots/pics/630b27dcbf83cd18fd64a7a84f25eb96/large.png" alt="Dunder Mifflin" style="max-width:150px;height:auto;">'
+                };
+            },
+            
+            setPreviewMode(mode) {
+                this.previewMode = mode;
+                // Update button states
+                document.querySelectorAll('.mode-btn').forEach(btn => {
+                    btn.classList.remove('active');
+                });
+                event.target.classList.add('active');
+                this.updatePreview();
+            },
+            
+            updatePreview() {
+                const globalSpacing = document.getElementById('spacing').value;
+                const sampleData = this.getSampleData();
+                let html = '';
+                this.items.filter(i => i.active).forEach(item => {
+                    if (item.type === 'spacer') { html += `<div style="height:${item.spacing||20}px"></div>`; return; }
+                    const fontSize = item.fontSize ?? this.globalFontSize;
+                    let style = `color:${item.color};margin:${globalSpacing}px 0;font-size:${fontSize}px;`;
+                    if (item.bold) style += 'font-weight:bold;';
+                    if (item.italic) style += 'font-style:italic;';
+                    if (item.underline) style += 'text-decoration:underline;';
+                    
+                    let displayText = item.field;
+                    
+                    // If in sample mode, replace merge fields with sample data
+                    if (this.previewMode === 'sample') {
+                        Object.keys(sampleData).forEach(key => {
+                            displayText = displayText.replaceAll(key, sampleData[key]);
+                        });
+                    }
+                    
+                    // Handle multi-line fields (split by \n and render each line)
+                    const lines = displayText.split('\n').filter(line => line.trim());
+                    if (lines.length > 1) {
+                        lines.forEach(line => {
+                            html += `<p style="${style}">${item.prefix}${line}</p>`;
+                        });
+                    } else {
+                        html += `<p style="${style}">${item.prefix}${displayText}</p>`;
+                    }
+                });
+                document.getElementById('preview').innerHTML = html;
+            },
+            
+            updateGlobalFontSize(size) {
+                this.globalFontSize = parseInt(size);
+                this.render();
+                this.updatePreview();
+            },
+            
+            handleFontSizeChange(item, newSize) {
+                newSize = parseInt(newSize);
+                if (newSize === this.globalFontSize && item.fontSize !== null) {
+                    // Show modal
+                    fontSizeModalCallback = (useGlobal) => {
+                        if (useGlobal) {
+                            item.fontSize = null;
+                        } else {
+                            item.fontSize = newSize;
+                        }
+                        this.render();
+                        this.updatePreview();
+                        document.getElementById('fontSizeModal').classList.remove('show');
+                    };
+                    document.getElementById('fontSizeModal').classList.add('show');
+                } else {
+                    item.fontSize = newSize;
+                    this.render();
+                    this.updatePreview();
+                }
+            },
+            
+            copy() {
+                // Always copy the code version (with merge fields), not the sample data
+                const currentMode = this.previewMode;
+                
+                // Temporarily generate code version HTML
+                const globalSpacing = document.getElementById('spacing').value;
+                let html = '';
+                this.items.filter(i => i.active).forEach(item => {
+                    if (item.type === 'spacer') { html += `<div style="height:${item.spacing||20}px"></div>`; return; }
+                    const fontSize = item.fontSize ?? this.globalFontSize;
+                    let style = `color:${item.color};margin:${globalSpacing}px 0;font-size:${fontSize}px;`;
+                    if (item.bold) style += 'font-weight:bold;';
+                    if (item.italic) style += 'font-style:italic;';
+                    if (item.underline) style += 'text-decoration:underline;';
+                    
+                    // Always use the field code, not sample data
+                    const lines = item.field.split('\n').filter(line => line.trim());
+                    if (lines.length > 1) {
+                        lines.forEach(line => {
+                            html += `<p style="${style}">${item.prefix}${line}</p>`;
+                        });
+                    } else {
+                        html += `<p style="${style}">${item.prefix}${item.field}</p>`;
+                    }
+                });
+                
+                // Create temporary element to copy from
+                const tempEl = document.createElement('div');
+                tempEl.innerHTML = html;
+                tempEl.style.position = 'absolute';
+                tempEl.style.left = '-9999px';
+                document.body.appendChild(tempEl);
+                
+                const range = document.createRange();
+                range.selectNode(tempEl);
+                window.getSelection().removeAllRanges();
+                window.getSelection().addRange(range);
+                document.execCommand('copy');
+                
+                // Clean up
+                document.body.removeChild(tempEl);
+                window.getSelection().removeAllRanges();
+                
+                alert('Template copied to clipboard!');
+            },
+            
+            openPasteModal() {
+                document.getElementById('pasteInput').value = '';
+                document.getElementById('pasteModal').classList.add('show');
+            },
+            
+            closePasteModal() {
+                document.getElementById('pasteModal').classList.remove('show');
+            },
+            
+            pasteTemplate() {
+                const html = document.getElementById('pasteInput').value;
+                if (!html.trim()) {
+                    alert('Please paste some content!');
+                    return;
+                }
+                
+                try {
+                    this.parseAndImport(html);
+                    this.closePasteModal();
+                    alert('Template imported successfully!');
+                } catch (error) {
+                    console.error('Parse error:', error);
+                    alert('Error parsing template. Please check the format.');
+                }
+            },
+            
+            parseAndImport(text) {
+                // Split by lines - keep empty lines to detect spacers
+                const lines = text.split('\n').map(l => l.trim());
+                
+                // Track which default fields were found
+                const foundFields = new Set();
+                const parsedItems = [];
+                let tempId = 1;
+                const processedLineIndexes = new Set();
+                
+                // Parse each line
+                for (let lineIndex = 0; lineIndex < lines.length; lineIndex++) {
+                    if (processedLineIndexes.has(lineIndex)) continue;
+                    
+                    const line = lines[lineIndex];
+                    
+                    // Check if line is empty - create spacer
+                    if (line.length === 0) {
+                        console.log('Empty line detected at index', lineIndex, '- creating spacer');
+                        parsedItems.push({
+                            id: tempId++,
+                            type: 'spacer',
+                            active: true,
+                            spacing: 20
+                        });
+                        continue;
+                    }
+                    
+                    // Debug: show character codes for curly-brace-like characters
+                    const braceChars = line.match(/[^a-z0-9\s,\.\-\(\)]/gi) || [];
+                    if (braceChars.length > 0) {
+                        console.log('  Special chars found:', braceChars.map(c => `${c} (U+${c.charCodeAt(0).toString(16).toUpperCase().padStart(4, '0')})`));
+                    }
+                    
+                    // Match standard curly braces {}, full-width ｛｝, and small ﹛﹜
+                    // Include digits (0-9) in field names
+                    const mergeFields = line.match(/[\{｛﹛][a-z0-9_\.]+[\}｝﹜]/gi) || [];
+                    
+                    // Normalize Unicode braces to standard braces
+                    const normalizedFields = mergeFields.map(f => 
+                        f.replace(/[｛﹛]/g, '{').replace(/[｝﹜]/g, '}')
+                    );
+                    
+                    console.log('Parsing line:', line, 'Fields:', normalizedFields);
+                    
+                    if (normalizedFields.length > 0) {
+                        // Extract prefix (text before first merge field)
+                        const firstFieldIndex = line.indexOf(mergeFields[0]);
+                        const prefix = firstFieldIndex > 0 ? line.substring(0, firstFieldIndex) : '';
+                        console.log('  Prefix:', prefix);
+                        
+                        // Has merge fields - try to match against defaults
+                        const matched = this.matchToDefault(line, normalizedFields, prefix);
+                        console.log('  Matched:', matched ? matched.label : 'NONE');
+                        
+                        if (matched) {
+                            // Mark this field as found
+                            foundFields.add(matched.field);
+                            
+                            matched.id = tempId++;
+                            matched.active = true;
+                            matched.prefix = prefix;
+                            
+                            // Special handling: If this is Company Address, look ahead for more location fields
+                            if (matched.label === 'Company Address' && matched.configurable) {
+                                console.log('  -> Company Address found, checking next lines for additional location fields');
+                                const additionalLines = [];
+                                
+                                // Look ahead at next lines
+                                for (let nextIdx = lineIndex + 1; nextIdx < lines.length; nextIdx++) {
+                                    const nextLine = lines[nextIdx];
+                                    const nextFields = nextLine.match(/[\{｛﹛][a-z0-9_\.]+[\}｝﹜]/gi) || [];
+                                    const normalizedNext = nextFields.map(f => 
+                                        f.replace(/[｛﹛]/g, '{').replace(/[｝﹜]/g, '}')
+                                    );
+                                    
+                                    // Check if this line has location fields
+                                    const hasLocationFields = normalizedNext.some(f => f.startsWith('{location.'));
+                                    if (hasLocationFields) {
+                                        console.log('    -> Found additional location line:', nextLine);
+                                        
+                                        // Parse separators between fields
+                                        const fieldsWithSeparators = [];
+                                        let currentPos = 0;
+                                        for (let i = 0; i < nextFields.length; i++) {
+                                            const field = normalizedNext[i];
+                                            const fieldStart = nextLine.indexOf(nextFields[i], currentPos);
+                                            const fieldEnd = fieldStart + nextFields[i].length;
+                                            
+                                            // Get separator (text between this field and next)
+                                            let separator = '';
+                                            if (i < nextFields.length - 1) {
+                                                const nextFieldStart = nextLine.indexOf(nextFields[i + 1], fieldEnd);
+                                                separator = nextLine.substring(fieldEnd, nextFieldStart);
+                                            }
+                                            
+                                            fieldsWithSeparators.push({ field, separator });
+                                            currentPos = fieldEnd;
+                                        }
+                                        
+                                        additionalLines.push({ line: nextLine, fields: normalizedNext, fieldsWithSeparators });
+                                        processedLineIndexes.add(nextIdx);
+                                    } else {
+                                        // Stop at first non-location line
+                                        break;
+                                    }
+                                }
+                                
+                                // Configure the address with found fields
+                                if (additionalLines.length > 0) {
+                                    console.log('    -> Configuring address with', additionalLines.length + 1, 'lines');
+                                    
+                                    // Update config to include additional lines with separators
+                                    const newConfigActive = [[{id:'line1',label:'Address Line 1',field:'{location.line1}'}]];
+                                    
+                                    // Add each additional line as a row in the config
+                                    let punctIdCounter = 1;
+                                    additionalLines.forEach(lineData => {
+                                        const lineRow = [];
+                                        lineData.fieldsWithSeparators.forEach((fw, idx) => {
+                                            const fieldName = fw.field.match(/\{location\.(\w+)\}/)?.[1] || 'field';
+                                            // Add the field
+                                            lineRow.push({
+                                                id: fieldName,
+                                                label: fieldName.charAt(0).toUpperCase() + fieldName.slice(1),
+                                                field: fw.field
+                                            });
+                                            
+                                            // If there's a separator, add it as punctuation items
+                                            if (fw.separator) {
+                                                // Split separator into characters and create punctuation items
+                                                for (let char of fw.separator) {
+                                                    lineRow.push({
+                                                        id: `punct_${punctIdCounter++}`,
+                                                        label: char,
+                                                        field: char,
+                                                        isPunctuation: true
+                                                    });
+                                                }
+                                            }
+                                        });
+                                        newConfigActive.push(lineRow);
+                                    });
+                                    
+                                    matched.config.active = newConfigActive;
+                                    console.log('    -> Updated config:', matched.config);
+                                }
+                            }
+                            
+                            // If item is configurable, update its field from config
+                            if (matched.configurable && matched.config) {
+                                console.log('    -> Updating field from config');
+                                this.updateFieldFromConfig(matched);
+                            }
+                            
+                            console.log('  Creating item:', matched);
+                            parsedItems.push(matched);
+                        } else {
+                            // Unknown merge field - keep the line as-is
+                            parsedItems.push({
+                                id: tempId++,
+                                label: line,
+                                field: line,
+                                type: 'merge',
+                                active: true,
+                                prefix: '',
+                                bold: false,
+                                italic: false,
+                                underline: false,
+                                color: '#000000',
+                                fontSize: null
+                            });
+                        }
+                    } else {
+                        // Static text
+                        parsedItems.push({
+                            id: tempId++,
+                            label: line,
+                            field: line,
+                            type: 'static',
+                            active: true,
+                            prefix: '',
+                            bold: false,
+                            italic: false,
+                            underline: false,
+                            color: '#000000',
+                            fontSize: null
+                        });
+                    }
+                }
+                
+                // Now rebuild items: parsed items (active) + defaults not found (inactive)
+                const defaultFields = [
+                    {label:'Staff Name',field:'{staff.first} {staff.last}',configurable:true,config:{active:[{id:'first',label:'First Name',field:'{staff.first}'},{id:'last',label:'Last Name',field:'{staff.last}'}],inactive:[]}},
+                    {label:'Staff Job Title',field:'{staff.job_title}'},
+                    {label:'Company Name',field:'{vendor.name}'},
+                    {label:'Company Address',field:'{location.line1}',configurable:true,maxLines:5,config:{active:[[{id:'line1',label:'Address Line 1',field:'{location.line1}'}],[{id:'city',label:'City',field:'{location.city}'},{id:'state',label:'State',field:'{location.state}'},{id:'zip',label:'Post Code',field:'{location.post_code}'}]],inactive:[{id:'line2',label:'Address Line 2',field:'{location.line2}'},{id:'line3',label:'Address Line 3',field:'{location.line3}'},{id:'country',label:'Country',field:'{location.country}'}]}},
+                    {label:'Company Phone',field:'{location.phone_1}'},
+                    {label:'Company Website',field:'{vendor.website}'},
+                    {label:'Company Logo',field:'{company_logo}'},
+                    {label:'Company Fax',field:'{location.fax}'},
+                    {label:'Company Mobile',field:'{location.mobile}'},
+                    {label:'Staff Mobile Phone',field:'{calculation.current_user_mobile}'},
+                    {label:'Staff Email',field:'{calculation.current_user_email}'},
+                    {label:'Staff Licence Number',field:'{calculation.current_user_customfield_licence_number}'},
+                    {label:'BPAY Reference',field:'{company.bpay_customer_ref}'}
+                ];
+                
+                // Add inactive defaults that weren't found
+                defaultFields.forEach(def => {
+                    if (!foundFields.has(def.field)) {
+                        parsedItems.push({
+                            id: tempId++,
+                            label: def.label,
+                            field: def.field,
+                            type: 'merge',
+                            active: false,
+                            configurable: def.configurable || false,
+                            config: def.config || null,
+                            maxLines: def.maxLines || 1,
+                            prefix: '',
+                            bold: false,
+                            italic: false,
+                            underline: false,
+                            color: '#000000',
+                            fontSize: null
+                        });
+                    }
+                });
+                
+                this.items = parsedItems;
+                this.nextId = tempId;
+                console.log('Final items array:', this.items);
+                this.render();
+                this.updatePreview();
+            },
+            
+            matchToDefault(textContent, mergeFields, prefix) {
+                console.log('  matchToDefault called with:', textContent, mergeFields, prefix);
+                
+                // Check if line contains specific single fields (match by merge field, not whole line)
+                const fieldMap = {
+                    '{staff.job_title}': { label: 'Staff Job Title', field: '{staff.job_title}' },
+                    '{vendor.name}': { label: 'Company Name', field: '{vendor.name}' },
+                    '{location.phone_1}': { label: 'Company Phone', field: '{location.phone_1}' },
+                    '{vendor.website}': { label: 'Company Website', field: '{vendor.website}' },
+                    '{company_logo}': { label: 'Company Logo', field: '{company_logo}' },
+                    '{location.line1}': { label: 'Company Address', field: '{location.line1}' },
+                    '{location.fax}': { label: 'Company Fax', field: '{location.fax}' },
+                    '{location.mobile}': { label: 'Company Mobile', field: '{location.mobile}' },
+                    '{calculation.current_user_mobile}': { label: 'Staff Mobile Phone', field: '{calculation.current_user_mobile}' },
+                    '{calculation.current_user_email}': { label: 'Staff Email', field: '{calculation.current_user_email}' },
+                    '{calculation.current_user_customfield_licence_number}': { label: 'Staff Licence Number', field: '{calculation.current_user_customfield_licence_number}' },
+                    '{company.bpay_customer_ref}': { label: 'BPAY Reference', field: '{company.bpay_customer_ref}' }
+                };
+                
+                // Check for Staff Name (compound field)
+                if (mergeFields.includes('{staff.first}') && mergeFields.includes('{staff.last}')) {
+                    console.log('  -> Matched Staff Name');
+                    return {
+                        label: 'Staff Name',
+                        field: '{staff.first} {staff.last}',
+                        type: 'merge',
+                        configurable: true,
+                        config: {active:[{id:'first',label:'First Name',field:'{staff.first}'},{id:'last',label:'Last Name',field:'{staff.last}'}],inactive:[]},
+                        maxLines: 1,
+                        prefix: '',
+                        bold: false,
+                        italic: false,
+                        underline: false,
+                        color: '#000000'
+                    };
+                }
+                
+                // Check if it's a single known field (even with prefix)
+                console.log('  Checking single field, mergeFields.length:', mergeFields.length);
+                if (mergeFields.length === 1) {
+                    const field = mergeFields[0];
+                    console.log('  Single field is:', field);
+                    console.log('  Field in map?:', !!fieldMap[field]);
+                    console.log('  fieldMap[field] value:', fieldMap[field]);
+                    if (fieldMap[field]) {
+                        console.log('  INSIDE fieldMap[field] block!');
+                        // Special handling for Company Address (needs config)
+                        if (field === '{location.line1}') {
+                            console.log('  -> Matched Company Address (location.line1)');
+                            return {
+                                label: 'Company Address',
+                                field: '{location.line1}',
+                                type: 'merge',
+                                configurable: true,
+                                maxLines: 5,
+                                config: {active:[[{id:'line1',label:'Address Line 1',field:'{location.line1}'}],[{id:'city',label:'City',field:'{location.city}'},{id:'state',label:'State',field:'{location.state}'},{id:'zip',label:'Post Code',field:'{location.post_code}'}]],inactive:[{id:'line2',label:'Address Line 2',field:'{location.line2}'},{id:'line3',label:'Address Line 3',field:'{location.line3}'},{id:'country',label:'Country',field:'{location.country}'}]},
+                                prefix: '',
+                                bold: false,
+                                italic: false,
+                                underline: false,
+                                color: '#000000'
+                            };
+                        }
+                        
+                        console.log('  -> Matched field:', fieldMap[field].label);
+                        return {
+                            label: fieldMap[field].label,
+                            field: fieldMap[field].field,
+                            type: 'merge',
+                            configurable: false,
+                            config: null,
+                            maxLines: 1,
+                            prefix: '',
+                            bold: false,
+                            italic: false,
+                            underline: false,
+                            color: '#000000'
+                        };
+                    } else {
+                        console.log('  NOT entering fieldMap[field] block even though it exists!');
+                    }
+                }
+                
+                // Check for multi-location fields (like city, state, post_code on one line)
+                const hasMultipleLocationFields = mergeFields.filter(f => f.startsWith('{location.')).length > 1;
+                console.log('  Has multiple location fields?:', hasMultipleLocationFields);
+                if (hasMultipleLocationFields) {
+                    // This is a compound address line - treat as custom
+                    console.log('  -> Returning null (multi-location)');
+                    return null;
+                }
+                
+                console.log('  -> Returning null (no match)');
+                return null;
+            },
+            
+            rgbToHex(rgb) {
+                if (!rgb || rgb.startsWith('#')) return rgb;
+                const match = rgb.match(/\d+/g);
+                if (!match || match.length < 3) return '#000000';
+                return '#' + match.slice(0, 3).map(x => {
+                    const hex = parseInt(x).toString(16);
+                    return hex.length === 1 ? '0' + hex : hex;
+                }).join('');
+            }
+        };
+        S.init();
+    </script>
+</body>
+</html>
