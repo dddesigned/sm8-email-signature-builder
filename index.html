@@ -10,7 +10,9 @@
         .header-left { display: flex; align-items: center; gap: 12px; }
         .header-logo { height: 50px; width: 50px; object-fit: contain; }
         .header h1 { font-size: 22px; color: white; font-weight: 600; letter-spacing: -0.5px; }
-        .version { font-size: 13px; color: rgba(255,255,255,0.9); font-weight: 500; background: rgba(255,255,255,0.2); padding: 4px 12px; border-radius: 20px; }
+        .version { font-size: 13px; color: rgba(255,255,255,0.9); font-weight: 500; background: rgba(255,255,255,0.2); padding: 4px 4px 4px 12px; border-radius: 20px; cursor: pointer; transition: all 0.2s; display: inline-flex; align-items: center; align-self: center; gap: 6px; }
+        .version:hover { background: rgba(255,255,255,0.3); }
+        .version-icon { width: 20px; height: 20px; stroke: rgba(255,255,255,0.9); fill: none; }
         .container { display: flex; flex: 1; overflow: hidden; }
         .left-panel { width: 520px; border-right: none; display: flex; flex-direction: column; background: white; box-shadow: 2px 0 10px rgba(0,0,0,0.05); }
         .right-panel { flex: 1; display: flex; flex-direction: column; }
@@ -38,7 +40,7 @@
         .item:hover { border-color: #dee2e6; box-shadow: 0 3px 12px rgba(4,94,140,0.15); }
         .item.dragging { opacity: 0.6; transform: scale(0.98); }
         .item.drag-over { border-top: 3px solid #045E8C; box-shadow: 0 4px 12px rgba(4,94,140,0.2); }
-        .item.spacer { background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%); border-color: #dee2e6; border-radius: 14px; }
+        .item.spacer { background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%); border-color: #dee2e6; border-radius: 14px; min-height: 48px; }
         .item.static-text { background: linear-gradient(135deg, #fff9e6 0%, #fff3cd 100%); border-color: #ffe69c; border-radius: 14px; }
         .item-left { display: flex; align-items: center; gap: 10px; flex: 1; min-width: 0; }
         .item-label { font-size: 14px; flex: 1; min-width: 0; color: #212529; font-weight: 500; }
@@ -65,6 +67,27 @@
         .hex-input:focus { outline: none; background: #f8f9fa; }
         .spacer-input { width: 60px; padding: 5px 8px; border: 1px solid #dee2e6; border-radius: 6px; font-size: 13px; transition: all 0.2s; }
         .spacer-input:focus { outline: none; border-color: #045E8C; box-shadow: 0 0 0 3px rgba(4,94,140,0.1); }
+        .spacer-controls { display: flex; gap: 8px; align-items: center; }
+        .spacer-height-group { display: flex; align-items: center; gap: 2px; position: relative; }
+        .spacer-height-group::after { content: 'px'; position: absolute; right: 10px; top: 50%; transform: translateY(-50%); font-size: 11px; color: #6c757d; pointer-events: none; transition: opacity 0.2s; }
+        .spacer-height-group:hover::after, .spacer-height-group:focus-within::after { opacity: 0; }
+        .line-toggle-wrapper { display: flex; align-items: center; gap: 6px; }
+        .line-toggle-label { font-size: 11px; color: #6c757d; font-weight: 600; }
+        .line-toggle { position: relative; width: 36px; height: 20px; background: #dee2e6; border-radius: 10px; cursor: pointer; transition: all 0.2s; border: none; }
+        .line-toggle.active { background: #045E8C; }
+        .line-toggle::after { content: ''; position: absolute; width: 16px; height: 16px; border-radius: 50%; background: white; top: 2px; left: 2px; transition: all 0.2s; box-shadow: 0 1px 3px rgba(0,0,0,0.2); }
+        .line-toggle.active::after { left: 18px; }
+        .line-controls { display: flex; gap: 8px; align-items: center; }
+        .line-control-group { display: flex; align-items: center; gap: 2px; }
+        .line-control-label { font-size: 11px; color: #6c757d; font-weight: 600; }
+        .control-icon { width: 16px; height: 16px; stroke: #6c757d; flex-shrink: 0; }
+        .line-input { height: 28px; border: 1px solid #dee2e6; border-radius: 6px; background: white; cursor: pointer; font-size: 11px; padding: 0 8px; color: #495057; font-family: monospace; transition: all 0.2s; }
+        .line-input:focus { outline: none; border-color: #045E8C; background: #f8f9fa; }
+        .line-color-bar { display: flex; gap: 0; border: 1px solid #dee2e6; border-radius: 6px; overflow: hidden; }
+        .line-color-input { width: 32px; height: 28px; border: none; cursor: pointer; transition: all 0.2s; }
+        .line-color-input:hover { background: #f8f9fa; }
+        .line-hex-input { width: 60px; height: 28px; border: none; border-left: 1px solid #dee2e6; padding: 0 6px; font-size: 11px; font-family: monospace; text-transform: uppercase; }
+        .line-hex-input:focus { outline: none; background: #f8f9fa; }
         .preview-container { flex: 1; overflow-y: auto; padding: 40px; background: #f8f9fa; display: flex; flex-direction: column; }
         .preview-mode-toggle { display: flex; justify-content: center; margin-bottom: 20px; }
         .mode-btn-group { display: inline-flex; background: white; border-radius: 8px; padding: 4px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); border: 1px solid #dee2e6; }
@@ -75,7 +98,7 @@
         .email-placeholder { padding: 0 0 30px 0; margin-bottom: 30px; color: #6c757d; font-size: 14px; line-height: 1.6; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
         .email-placeholder p { margin: 0 0 12px 0; }
         .email-placeholder p:last-child { margin-bottom: 0; }
-        .copy-btn { padding: 8px 16px; background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 13px; font-weight: 500; transition: all 0.2s; box-shadow: 0 2px 6px rgba(16,185,129,0.3); }
+        .copy-btn { padding: 8px 16px; background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 13px; font-weight: 500; transition: all 0.2s; box-shadow: 0 2px 6px rgba(16,185,129,0.3); min-width: 130px; }
         .copy-btn:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(16,185,129,0.4); }
         .copy-btn:active { transform: translateY(0); }
         .paste-btn { padding: 8px 16px; background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 13px; font-weight: 500; transition: all 0.2s; box-shadow: 0 2px 6px rgba(59,130,246,0.3); }
@@ -90,7 +113,17 @@
         .modal-body textarea { width: 100%; min-height: 200px; padding: 12px; border: 1px solid #dee2e6; border-radius: 8px; font-size: 13px; font-family: monospace; transition: all 0.2s; resize: vertical; }
         .modal-body textarea:focus { outline: none; border-color: #045E8C; box-shadow: 0 0 0 3px rgba(4,94,140,0.1); }
         .paste-modal-content { width: 600px; }
+        .changelog-modal-content { width: 700px; max-height: 80vh; display: flex; flex-direction: column; padding: 25px 0 25px 25px; }
+        .changelog-modal-content .modal-body { flex: 1; overflow-y: auto; margin-bottom: 20px; padding-right: 25px; margin-right: 0; }
+        .changelog-modal-content .modal-footer { flex-shrink: 0; margin-top: 0; padding-top: 20px; padding-right: 25px; border-top: 1px solid #e9ecef; }
+        .changelog-header { font-size: 24px; font-weight: 700; margin-bottom: 20px; color: #045E8C; flex-shrink: 0; padding-right: 25px; }
+        .changelog-version { margin-bottom: 25px; }
+        .changelog-version-title { font-size: 18px; font-weight: 600; color: #212529; margin-bottom: 8px; padding-bottom: 8px; border-bottom: 2px solid #e9ecef; }
+        .changelog-list { list-style: none; padding-left: 0; }
+        .changelog-list li { padding: 6px 0 6px 20px; color: #495057; font-size: 14px; line-height: 1.6; position: relative; }
+        .changelog-list li::before { content: '•'; position: absolute; left: 6px; color: #045E8C; font-weight: bold; }
         .modal-footer { margin-top: 20px; display: flex; gap: 10px; justify-content: flex-end; }
+        .modal-footer.spread { justify-content: space-between; }
         .modal-footer button { padding: 9px 18px; border: none; border-radius: 8px; cursor: pointer; font-size: 13px; font-weight: 500; transition: all 0.2s; }
         .modal-footer .btn-primary { background: #045E8C; color: white; }
         .modal-footer .btn-primary:hover { background: #034a6f; transform: translateY(-1px); box-shadow: 0 2px 8px rgba(4,94,140,0.3); }
@@ -100,15 +133,24 @@
         .gear-btn:hover { background: #f8f9fa; border-color: #ced4da; }
         .config-modal { width: 500px; }
         .config-zones { display: flex; flex-direction: column; gap: 20px; margin-top: 15px; }
-        .config-zone { background: #f8f9fa; border-radius: 8px; padding: 12px; min-height: 80px; }
+        .config-zone { background: #f8f9fa; border-radius: 8px; padding: 12px; min-height: 80px; display: flex; flex-direction: column; }
+        .config-punctuation-wrapper { display: flex; justify-content: space-between; align-items: center; gap: 10px; width: 100%; }
+        .config-punctuation-left { display: flex; gap: 8px; flex-wrap: wrap; }
+        .config-punctuation-right { display: flex; gap: 8px; margin-left: auto; }
         .config-zone.punctuation-zone { background: #fff9e6; min-height: 50px; }
         .config-zone-header { font-size: 11px; font-weight: 700; color: #6c757d; margin-bottom: 10px; text-transform: uppercase; letter-spacing: 0.5px; }
         .config-items-container { display: flex; flex-wrap: wrap; gap: 6px; min-height: 40px; }
         .config-item { height: 22px; padding: 0 12px; background: #045E8C; color: white; border: none; border-radius: 100px; cursor: move; font-size: 12px; font-weight: 500; transition: all 0.15s ease; display: inline-flex; align-items: center; justify-content: center; user-select: none; position: relative; }
-        .config-item::before { content: ''; position: absolute; top: -8px; bottom: -8px; left: -8px; right: -8px; }
+        .config-item::before { content: ''; position: absolute; top: -8px; bottom: -8px; left: -8px; right: -8px; pointer-events: none; }
+        .config-item.static-text-item::before { display: none; }
         .config-item:hover { background: #034a6f; box-shadow: 0 2px 8px rgba(4,94,140,0.3); transform: translateY(-1px); }
         .config-item.punctuation { background: #f59e0b; width: 28px; padding: 0; font-size: 14px; font-weight: 600; }
         .config-item.punctuation:hover { background: #d97706; }
+        .config-item.punctuation[data-id="statictext"] { width: auto; padding: 0 12px; }
+        .config-item.static-text-item { width: auto; min-width: 60px; padding: 0 8px 0 4px; cursor: default; position: relative; display: inline-flex; align-items: center; gap: 4px; }
+        .config-item.static-text-item input { cursor: text !important; pointer-events: auto !important; user-select: text !important; min-width: 3ch; max-width: 40ch; box-sizing: content-box; }
+        .static-text-drag-handle { width: 16px; height: 16px; stroke: white; fill: none; cursor: move; flex-shrink: 0; padding: 2px; opacity: 0.7; transition: all 0.2s; }
+        .static-text-drag-handle:hover { opacity: 1; transform: scale(1.1); }
         .config-item.dragging { opacity: 0.3; transform: scale(0.95); }
         .config-item.drop-before { margin-left: 40px; transition: margin-left 0.15s ease; }
         .config-item.drop-after { margin-right: 40px; transition: margin-right 0.15s ease; }
@@ -131,7 +173,14 @@
         <div style="display: flex; align-items: center; gap: 15px;">
             <button class="copy-btn" onclick="S.copy()">Copy Template</button>
             <button class="paste-btn" onclick="S.openPasteModal()">Paste Template</button>
-            <div class="version">v1.0</div>
+            <div class="version" onclick="S.openChangelogModal()">
+                <span>v1.41</span>
+                <svg class="version-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="8" cy="8" r="6"></circle>
+                    <line x1="8" y1="11" x2="8" y2="8"></line>
+                    <circle cx="8" cy="5.5" r="0.5" fill="currentColor"></circle>
+                </svg>
+            </div>
         </div>
     </div>
     <div class="container">
@@ -262,6 +311,129 @@
             </div>
         </div>
     </div>
+    
+    <div class="modal" id="changelogModal" onclick="if(event.target.id==='changelogModal') S.closeChangelogModal()">
+        <div class="modal-content changelog-modal-content">
+            <div class="changelog-header">📋 Changelog</div>
+            <div class="modal-body">
+                <div class="changelog-version">
+                    <div class="changelog-version-title">v1.41 - October 2, 2025</div>
+                    <ul class="changelog-list">
+                        <li>Added support for {calculation.current_user_fullname} field in paste template</li>
+                        <li>Automatically converts fullname field to standard Staff Name (First + Last) configuration</li>
+                        <li>Ensures consistent Staff Name structure across different import sources</li>
+                    </ul>
+                </div>
+                <div class="changelog-version">
+                    <div class="changelog-version-title">v1.40 - October 2, 2025</div>
+                    <ul class="changelog-list">
+                        <li>Fixed paste template parser - smart spacer detection (only creates spacers for 2+ consecutive empty lines)</li>
+                        <li>Fixed Company Address detection - address-specific location fields only (not phone/fax/mobile)</li>
+                        <li>Parser skips empty lines when looking for address continuation lines</li>
+                        <li>All location field lines (including city/state/zip) are now grouped into single Company Address item</li>
+                        <li>Eliminated duplicate items and excessive spacers when pasting default templates</li>
+                        <li>Fixed Company Address parser - now captures trailing text after last field on line</li>
+                        <li>Correctly imports lines like "{location.line1}, Suite 123" with static text after field</li>
+                        <li>Single space separators are now skipped (fields have natural spacing)</li>
+                        <li>Eliminates double spacing when importing Staff Name and Company Address</li>
+                        <li>Fixed Company Address configuration modal - can now drag address fields from inactive to active</li>
+                        <li>Allows adding Country, Address Line 2, Address Line 3 to active address configuration</li>
+                    </ul>
+                </div>
+                <div class="changelog-version">
+                    <div class="changelog-version-title">v1.35 - October 2, 2025</div>
+                    <ul class="changelog-list">
+                        <li>Fixed Copy Template button getting stuck when clicked multiple times rapidly</li>
+                        <li>Added timeout tracking to clear previous timer when button is clicked again</li>
+                        <li>Each click now properly resets the 1.5 second countdown to fade back</li>
+                        <li>Fixed Copy Template button size - maintains consistent width when text changes between states</li>
+                        <li>Enhanced Copy Template button with visual feedback - changes to "Copied!" with green background</li>
+                        <li>Fixed background striping issue when copying templates via Copy Template button</li>
+                        <li>Ensures copied HTML has clean, transparent backgrounds without styling artifacts</li>
+                    </ul>
+                </div>
+                <div class="changelog-version">
+                    <div class="changelog-version-title">v1.31 - October 2, 2025</div>
+                    <ul class="changelog-list">
+                        <li>Updated paste template parser to properly detect and import static text punctuation</li>
+                        <li>Parser now distinguishes between regular punctuation (commas, spaces) and static text (words)</li>
+                        <li>Static text in Staff Name separator (e.g., "Inc.", "Jr.") is correctly imported with isStaticText flag</li>
+                        <li>Static text in Company Address (between fields) is correctly imported with surrounding spaces</li>
+                        <li>Ensures pasted templates with static text maintain full editability and drag handle functionality</li>
+                    </ul>
+                </div>
+                <div class="changelog-version">
+                    <div class="changelog-version-title">v1.30 - October 2, 2025</div>
+                    <ul class="changelog-list">
+                        <li>Company Logo simplified: no style options available (bold, italic, underline, color)</li>
+                        <li>Company Logo font size always matches global font size setting</li>
+                        <li>Company Logo prefix button disabled and greyed out for layout consistency</li>
+                        <li>Company Logo behavior enforced in both UI controls and output rendering</li>
+                    </ul>
+                </div>
+                <div class="changelog-version">
+                    <div class="changelog-version-title">v1.28 - October 2, 2025</div>
+                    <ul class="changelog-list">
+                        <li>Added Static Text punctuation feature for custom text in address lines (Staff Name & Company Address)</li>
+                        <li>Static Text objects appear in punctuation section, positioned on the right side</li>
+                        <li>Drag handle (three horizontal lines) for moving static text - only draggable via handle</li>
+                        <li>Editable text input with dynamic width (6px per character + 8px padding)</li>
+                        <li>Auto-spacing: Static text automatically adds spaces before and after when placed</li>
+                        <li>Smart grouping: Static text + adjacent spaces move together when dragging between lines</li>
+                        <li>Individual punctuation reordering: Regular punctuation (commas, spaces) can be reordered independently within a line</li>
+                        <li>Static text removal: Dragging back to punctuation section removes text and cleans up orphaned spaces</li>
+                        <li>Fixed pseudo-element click blocking issue that prevented text editing</li>
+                        <li>Fixed deletion bug when dragging punctuation within same consecutive group</li>
+                        <li>Fixed changelog modal: footer with Close and Send Request buttons now fixed at bottom (not in scrollable area)</li>
+                        <li>Fixed scrollbar spacing: removed gap between scrollbar and right edge of changelog modal</li>
+                    </ul>
+                </div>
+                <div class="changelog-version">
+                    <div class="changelog-version-title">v1.05 - October 2, 2025</div>
+                    <ul class="changelog-list">
+                        <li>Added interactive changelog modal accessible by clicking version badge</li>
+                        <li>Version badge now displays info icon (ℹ️) and optimized padding</li>
+                        <li>Added "Send Request" button in changelog for feature requests/support</li>
+                        <li>Streamlined changelog to single source (modal only, removed code comments)</li>
+                    </ul>
+                </div>
+                <div class="changelog-version">
+                    <div class="changelog-version-title">v1.01 - October 2, 2025</div>
+                    <ul class="changelog-list">
+                        <li>Added horizontal line feature to Spacer objects</li>
+                        <li>Added toggle switch to enable/disable line within spacer</li>
+                        <li>Line controls: thickness (1-5px), width (XS-XXL: 50%-100%), and color picker with hex input</li>
+                        <li>SVG icons added for height, thickness, and width controls</li>
+                        <li>Line is centered within the spacer spacing (e.g., 20px spacer with 2px line = 9px above, 2px line, 9px below)</li>
+                        <li>Adjusted control spacing: 2px gap between icons and inputs, 8px gap between control groups</li>
+                        <li>Added "px" suffix to spacer height input (shows on idle, fades on hover/focus)</li>
+                        <li>Fixed spacer min-height to 48px to prevent visual jump when toggling line</li>
+                        <li>Removed standalone "+ Horizontal Line" button from toolbar</li>
+                    </ul>
+                </div>
+                <div class="changelog-version">
+                    <div class="changelog-version-title">v1.0 - Initial Release</div>
+                    <ul class="changelog-list">
+                        <li>Email signature builder with drag-and-drop interface</li>
+                        <li>Support for merge fields from ServiceM8</li>
+                        <li>Spacer items for vertical spacing</li>
+                        <li>Static text items</li>
+                        <li>Text formatting: bold, italic, underline, color, font size</li>
+                        <li>Prefix support for merge fields</li>
+                        <li>Multi-line merge field configuration</li>
+                        <li>Preview modes: Code (with merge fields) and Sample (with test data)</li>
+                        <li>Copy to clipboard functionality</li>
+                        <li>Template import/export via paste modal</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="modal-footer spread">
+                <button class="btn-secondary" onclick="window.location.href='mailto:support@dddesigned.com?subject=ServiceM8%20Email%20Signature%20Builder%20Request'">Send Request</button>
+                <button class="btn-primary" onclick="S.closeChangelogModal()">Close</button>
+            </div>
+        </div>
+    </div>
+    
     <script>
         let fontSizeModalCallback = null;
         
@@ -271,6 +443,8 @@
             globalFontSize: 14,
             currentPrefixId: null,
             previewMode: 'code',
+            
+            copyButtonTimeout: null,
             
             init() {
                 const defaults = [
@@ -310,16 +484,27 @@
             },
             
             renderItem(item) {
-                if (item.type === 'spacer') return `<div class="item spacer" draggable="true" data-id="${item.id}"><div class="item-left"><span>Spacer (${item.spacing||20}px)</span></div>${item.active ? `<input type="number" class="spacer-input" value="${item.spacing||20}" onchange="S.updateSpacer(${item.id}, this.value)">` : ''}</div>`;
+                if (item.type === 'spacer') {
+                    const hasLine = item.hasLine || false;
+                    const thickness = item.lineThickness || 1;
+                    const width = item.lineWidth || '100%';
+                    // SVG Icons
+                    const heightIcon = `<svg class="control-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="2" x2="8" y2="14"></line><polyline points="5 5 8 2 11 5"></polyline><polyline points="5 11 8 14 11 11"></polyline></svg>`;
+                    const thicknessIcon = `<svg class="control-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-linecap="round"><line x1="2" y1="4" x2="14" y2="4" stroke-width="1"></line><line x1="2" y1="8" x2="14" y2="8" stroke-width="2"></line><line x1="2" y1="12" x2="14" y2="12" stroke-width="3"></line></svg>`;
+                    const widthIcon = `<svg class="control-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><line x1="2" y1="8" x2="14" y2="8"></line><polyline points="5 5 2 8 5 11"></polyline><polyline points="11 5 14 8 11 11"></polyline></svg>`;
+                    const lineControls = hasLine ? `<div class="line-controls"><div class="line-control-group">${thicknessIcon}<select class="line-input" onchange="S.updateLineThickness(${item.id}, this.value)"><option value="1" ${thickness===1?'selected':''}>1</option><option value="2" ${thickness===2?'selected':''}>2</option><option value="3" ${thickness===3?'selected':''}>3</option><option value="4" ${thickness===4?'selected':''}>4</option><option value="5" ${thickness===5?'selected':''}>5</option></select></div><div class="line-control-group">${widthIcon}<select class="line-input" onchange="S.updateLineWidth(${item.id}, this.value)"><option value="50%" ${width==='50%'?'selected':''}>XS</option><option value="60%" ${width==='60%'?'selected':''}>S</option><option value="70%" ${width==='70%'?'selected':''}>M</option><option value="80%" ${width==='80%'?'selected':''}>L</option><option value="90%" ${width==='90%'?'selected':''}>XL</option><option value="100%" ${width==='100%'?'selected':''}>XXL</option></select></div><div class="line-color-bar"><input type="color" class="line-color-input" id="line-color-${item.id}" value="${item.lineColor||'#dee2e6'}" onchange="S.updateLineColor(${item.id}, this.value)"><input type="text" class="line-hex-input" id="line-hex-${item.id}" value="${item.lineColor||'#dee2e6'}" onchange="S.updateLineColorFromHex(${item.id}, this.value)" maxlength="7" placeholder="#000000"></div></div>` : '';
+                    return `<div class="item spacer" draggable="true" data-id="${item.id}"><div class="item-left"><span>Spacer</span></div>${item.active ? `<div class="spacer-controls"><div class="spacer-height-group">${heightIcon}<input type="number" class="spacer-input" value="${item.spacing||20}" onchange="S.updateSpacer(${item.id}, this.value)"></div><div class="line-toggle-wrapper"><span class="line-toggle-label">Line</span><button class="line-toggle ${hasLine?'active':''}" onclick="S.toggleLine(${item.id})"></button></div>${lineControls}</div>` : ''}</div>`;
+                }
                 const isStatic = item.type === 'static';
+                const isCompanyLogo = item.field === '{company_logo}';
                 const label = isStatic ? `<input type="text" value="${item.field}" onchange="S.updateStaticText(${item.id}, this.value)">` : item.label;
-                const prefixBtn = item.active ? `<button class="prefix-btn ${item.prefix?'active':''}" onclick="S.openPrefix(${item.id})">prefix</button>` : '';
+                const prefixBtn = item.active ? (isCompanyLogo ? `<button class="prefix-btn" disabled style="opacity:0.4;cursor:not-allowed;">prefix</button>` : `<button class="prefix-btn ${item.prefix?'active':''}" onclick="S.openPrefix(${item.id})">prefix</button>`) : '';
                 const gearBtn = item.active && item.configurable ? `<button class="gear-btn" onclick="S.openConfig(${item.id})">⚙</button>` : '';
-                const currentFontSize = item.fontSize ?? this.globalFontSize;
+                const currentFontSize = isCompanyLogo ? this.globalFontSize : (item.fontSize ?? this.globalFontSize);
                 const isManual = item.fontSize !== null;
                 const fontSizeClass = isManual ? 'manual' : 'global';
-                const fontSizeSelect = item.active ? `<select class="font-size-select ${fontSizeClass}" onchange="S.handleFontSizeChange(S.getItem(${item.id}), this.value)"><option value="10" ${currentFontSize===10?'selected':''}>10px</option><option value="11" ${currentFontSize===11?'selected':''}>11px</option><option value="12" ${currentFontSize===12?'selected':''}>12px</option><option value="13" ${currentFontSize===13?'selected':''}>13px</option><option value="14" ${currentFontSize===14?'selected':''}>14px</option><option value="16" ${currentFontSize===16?'selected':''}>16px</option><option value="18" ${currentFontSize===18?'selected':''}>18px</option><option value="20" ${currentFontSize===20?'selected':''}>20px</option><option value="22" ${currentFontSize===22?'selected':''}>22px</option><option value="24" ${currentFontSize===24?'selected':''}>24px</option></select>` : '';
-                const controls = item.active ? `<div class="item-controls">${gearBtn}<div class="format-control-bar">${fontSizeSelect}<div class="format-buttons"><button class="format-btn ${item.bold?'active':''}" onclick="S.toggleFormat(${item.id},'bold')">B</button><button class="format-btn ${item.italic?'active':''}" onclick="S.toggleFormat(${item.id},'italic')" style="font-style:italic">I</button><button class="format-btn ${item.underline?'active':''}" onclick="S.toggleFormat(${item.id},'underline')" style="text-decoration:underline">U</button></div><input type="color" class="color-input" id="color-${item.id}" value="${item.color}" onchange="S.updateColor(${item.id}, this.value)"><input type="text" class="hex-input" id="hex-${item.id}" value="${item.color}" onchange="S.updateColorFromHex(${item.id}, this.value)" maxlength="7" placeholder="#000000"></div></div>` : '';
+                const fontSizeSelect = item.active && !isCompanyLogo ? `<select class="font-size-select ${fontSizeClass}" onchange="S.handleFontSizeChange(S.getItem(${item.id}), this.value)"><option value="10" ${currentFontSize===10?'selected':''}>10px</option><option value="11" ${currentFontSize===11?'selected':''}>11px</option><option value="12" ${currentFontSize===12?'selected':''}>12px</option><option value="13" ${currentFontSize===13?'selected':''}>13px</option><option value="14" ${currentFontSize===14?'selected':''}>14px</option><option value="16" ${currentFontSize===16?'selected':''}>16px</option><option value="18" ${currentFontSize===18?'selected':''}>18px</option><option value="20" ${currentFontSize===20?'selected':''}>20px</option><option value="22" ${currentFontSize===22?'selected':''}>22px</option><option value="24" ${currentFontSize===24?'selected':''}>24px</option></select>` : '';
+                const controls = item.active && !isCompanyLogo ? `<div class="item-controls">${gearBtn}<div class="format-control-bar">${fontSizeSelect}<div class="format-buttons"><button class="format-btn ${item.bold?'active':''}" onclick="S.toggleFormat(${item.id},'bold')">B</button><button class="format-btn ${item.italic?'active':''}" onclick="S.toggleFormat(${item.id},'italic')" style="font-style:italic">I</button><button class="format-btn ${item.underline?'active':''}" onclick="S.toggleFormat(${item.id},'underline')" style="text-decoration:underline">U</button></div><input type="color" class="color-input" id="color-${item.id}" value="${item.color}" onchange="S.updateColor(${item.id}, this.value)"><input type="text" class="hex-input" id="hex-${item.id}" value="${item.color}" onchange="S.updateColorFromHex(${item.id}, this.value)" maxlength="7" placeholder="#000000"></div></div>` : '';
                 return `<div class="item ${isStatic?'static-text':''}" draggable="true" data-id="${item.id}"><div class="item-left">${prefixBtn}<span class="item-label">${label}</span></div>${controls}</div>`;
             },
             
@@ -458,6 +643,31 @@
             },
             
             updateSpacer(id, value) { const item = this.getItem(id); if (item) { item.spacing = parseInt(value)||20; this.render(); this.updatePreview(); } },
+            toggleLine(id) { const item = this.getItem(id); if (item) { item.hasLine = !item.hasLine; if (item.hasLine && !item.lineThickness) { item.lineThickness = 1; item.lineWidth = '100%'; item.lineColor = '#dee2e6'; } this.render(); this.updatePreview(); } },
+            updateLineThickness(id, value) { const item = this.getItem(id); if (item) { item.lineThickness = parseInt(value)||1; this.render(); this.updatePreview(); } },
+            updateLineWidth(id, value) { const item = this.getItem(id); if (item) { item.lineWidth = value; this.render(); this.updatePreview(); } },
+            updateLineColor(id, value) { 
+                const item = this.getItem(id); 
+                if (item) { 
+                    item.lineColor = value; 
+                    const hexInput = document.getElementById(`line-hex-${id}`);
+                    if (hexInput) hexInput.value = value;
+                    this.updatePreview(); 
+                } 
+            },
+            updateLineColorFromHex(id, hex) {
+                hex = hex.trim();
+                if (!hex.startsWith('#')) hex = '#' + hex;
+                if (/^#[0-9A-Fa-f]{6}$/.test(hex)) {
+                    const item = this.getItem(id);
+                    if (item) {
+                        item.lineColor = hex;
+                        const colorInput = document.getElementById(`line-color-${id}`);
+                        if (colorInput) colorInput.value = hex;
+                        this.updatePreview();
+                    }
+                }
+            },
             updateStaticText(id, value) { const item = this.getItem(id); if (item) { item.field = value; this.updatePreview(); } },
             updateFontSize(id, value) { const item = this.getItem(id); if (item) { item.fontSize = parseInt(value); this.updatePreview(); } },
             
@@ -503,10 +713,11 @@
                     {id:'slash',label:'/',char:'/'},
                     {id:'dash',label:'-',char:'-'}
                 ];
-                const punctuationHtml = punctuations.map(p => 
+                const punctuationLeftHtml = punctuations.map(p => 
                     `<div class="config-item punctuation" draggable="true" data-id="${p.id}" data-punctuation="true">${p.label}</div>`
                 ).join('');
-                document.getElementById('configPunctuation').innerHTML = punctuationHtml;
+                const punctuationRightHtml = `<div class="config-item punctuation" draggable="true" data-id="statictext" data-punctuation="true">Static Text</div>`;
+                document.getElementById('configPunctuation').innerHTML = `<div class="config-punctuation-wrapper"><div class="config-punctuation-left">${punctuationLeftHtml}</div><div class="config-punctuation-right">${punctuationRightHtml}</div></div>`;
                 
                 if (isMultiLine) {
                     let activeHtml = '';
@@ -517,7 +728,11 @@
                         line.forEach(el => {
                             const isPunct = el.isPunctuation ? 'punctuation' : '';
                             const punctAttr = el.isPunctuation ? 'data-punctuation="instance"' : '';
-                            activeHtml += `<div class="config-item ${isPunct}" draggable="true" data-line="${lineIdx}" data-id="${el.id}" ${punctAttr}>${el.label}</div>`;
+                            const isStaticText = el.isStaticText;
+                            const staticClass = isStaticText ? 'static-text-item' : '';
+                            const estimatedWidth = Math.max(30, (el.field.length * 6) + 8) + 'px';
+                            const content = isStaticText ? `<svg class="static-text-drag-handle" viewBox="0 0 16 16" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="5" x2="13" y2="5"></line><line x1="3" y1="8" x2="13" y2="8"></line><line x1="3" y1="11" x2="13" y2="11"></line></svg><input type="text" value="${el.field}" onchange="S.updateConfigStaticText('${el.id}', this.value)" oninput="S.autoResizeStaticTextInput(this); S.updateConfigStaticText('${el.id}', this.value)" style="border:none;background:transparent;font-size:12px;padding:2px 4px;color:white;width:${estimatedWidth};" placeholder="Enter text">` : el.label;
+                            activeHtml += `<div class="config-item ${isPunct} ${staticClass}" draggable="${!isStaticText}" data-line="${lineIdx}" data-id="${el.id}" ${punctAttr}>${content}</div>`;
                         });
                         activeHtml += '</div></div>';
                     });
@@ -527,7 +742,11 @@
                     const itemsHtml = this.tempConfig.active.map(el => {
                         const isPunct = el.isPunctuation ? 'punctuation' : '';
                         const punctAttr = el.isPunctuation ? 'data-punctuation="instance"' : '';
-                        return `<div class="config-item ${isPunct}" draggable="true" data-id="${el.id}" ${punctAttr}>${el.label}</div>`;
+                        const isStaticText = el.isStaticText;
+                        const staticClass = isStaticText ? 'static-text-item' : '';
+                        const estimatedWidth = isStaticText ? Math.max(30, (el.field.length * 6) + 8) + 'px' : '0';
+                        const content = isStaticText ? `<svg class="static-text-drag-handle" viewBox="0 0 16 16" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="5" x2="13" y2="5"></line><line x1="3" y1="8" x2="13" y2="8"></line><line x1="3" y1="11" x2="13" y2="11"></line></svg><input type="text" value="${el.field}" onchange="S.updateConfigStaticText('${el.id}', this.value)" oninput="S.autoResizeStaticTextInput(this); S.updateConfigStaticText('${el.id}', this.value)" style="border:none;background:transparent;font-size:12px;padding:2px 4px;color:white;width:${estimatedWidth};" placeholder="Enter text">` : el.label;
+                        return `<div class="config-item ${isPunct} ${staticClass}" draggable="${!isStaticText}" data-id="${el.id}" ${punctAttr}>${content}</div>`;
                     }).join('');
                     document.getElementById('configActive').innerHTML = `<div class="config-items-container" id="configActiveSingle">${itemsHtml}</div>`;
                 }
@@ -539,6 +758,29 @@
                 document.getElementById('configInactive').innerHTML = inactiveHtml;
                 
                 this.attachConfigDragEvents();
+                this.attachStaticTextDragHandles();
+            },
+            
+            attachStaticTextDragHandles() {
+                console.log('Attaching static text drag handles');
+                const staticTextItems = document.querySelectorAll('.static-text-item');
+                console.log('Found static text items:', staticTextItems.length);
+                
+                staticTextItems.forEach(item => {
+                    const dragHandle = item.querySelector('.static-text-drag-handle');
+                    if (dragHandle) {
+                        dragHandle.addEventListener('mousedown', (e) => {
+                            console.log('Drag handle mousedown - enabling drag');
+                            item.setAttribute('draggable', 'true');
+                        });
+                        
+                        // Disable drag after drag ends
+                        item.addEventListener('dragend', () => {
+                            console.log('Drag ended - disabling drag');
+                            item.setAttribute('draggable', 'false');
+                        });
+                    }
+                });
             },
             
             attachConfigDragEvents() {
@@ -880,7 +1122,7 @@
                     if (!hasSpaceAfter) {
                         result.push(this.generatePunctuationInstance('space'));
                     }
-                } else if (punctuationId === 'slash' || punctuationId === 'dash') {
+                } else if (punctuationId === 'slash' || punctuationId === 'dash' || punctuationId === 'statictext') {
                     // Add space before if not already there
                     if (!hasSpaceBefore) {
                         result.push(this.generatePunctuationInstance('space'));
@@ -905,18 +1147,21 @@
                     'comma': ',',
                     'space': ' ',
                     'slash': '/',
-                    'dash': '-'
+                    'dash': '-',
+                    'statictext': 'Text'
                 };
                 return punctuations[id] || '';
             },
             
             generatePunctuationInstance(punctuationId) {
                 const char = this.getPunctuationChar(punctuationId);
+                const isStaticText = punctuationId === 'statictext';
                 return {
                     id: 'punct_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9),
                     label: char === ' ' ? '␣' : char,
                     field: char,
-                    isPunctuation: true
+                    isPunctuation: true,
+                    isStaticText: isStaticText
                 };
             },
             
@@ -1011,39 +1256,86 @@
             
             moveConfigToLine(id, targetLine) {
                 console.log('moveConfigToLine called with:', id, 'to line:', targetLine);
-                let element = this.findAndRemoveConfigElement(id);
-                console.log('Found element:', element);
-                if (element) {
-                    while (this.tempConfig.active.length <= targetLine) {
-                        this.tempConfig.active.push([]);
-                    }
-                    this.tempConfig.active[targetLine].push(element);
-                    console.log('New active config:', this.tempConfig.active);
-                }
-            },
-            
-            reorderConfigInLine(draggedId, targetId, targetLine) {
-                console.log('Reordering in line:', targetLine, draggedId, this.dropPosition, targetId);
                 
-                // Find the element and check if it's punctuation
+                // Find which line the element is in and check if it's punctuation
                 let elementsToMove = [];
                 let sourceLineIdx = null;
                 
-                // Find which line the dragged element is in
                 for (let i = 0; i < this.tempConfig.active.length; i++) {
-                    const idx = this.tempConfig.active[i].findIndex(e => e.id === draggedId);
+                    const idx = this.tempConfig.active[i].findIndex(e => e.id === id);
                     if (idx !== -1) {
                         sourceLineIdx = i;
                         
                         if (this.tempConfig.active[i][idx].isPunctuation) {
                             // Get consecutive punctuation group
                             const group = this.getConsecutivePunctuationGroup(this.tempConfig.active[i], idx);
+                            console.log('Moving punctuation group from line', i, 'indices', group.start, 'to', group.end);
                             // Remove all from array (in reverse to maintain indices)
                             for (let j = group.end; j >= group.start; j--) {
                                 elementsToMove.unshift(this.tempConfig.active[i].splice(j, 1)[0]);
                             }
                         } else {
                             elementsToMove = [this.tempConfig.active[i].splice(idx, 1)[0]];
+                        }
+                        break;
+                    }
+                }
+                
+                // If not found in active, check inactive
+                if (elementsToMove.length === 0) {
+                    const inactiveIdx = this.tempConfig.inactive.findIndex(e => e.id === id);
+                    if (inactiveIdx !== -1) {
+                        console.log('Found in inactive, moving to active line', targetLine);
+                        elementsToMove = [this.tempConfig.inactive.splice(inactiveIdx, 1)[0]];
+                    }
+                }
+                
+                if (elementsToMove.length === 0) {
+                    console.log('No elements found to move');
+                    return;
+                }
+                
+                console.log('Moving elements:', elementsToMove.map(e => e.label));
+                
+                while (this.tempConfig.active.length <= targetLine) {
+                    this.tempConfig.active.push([]);
+                }
+                
+                // Add all elements to target line
+                elementsToMove.forEach(el => {
+                    this.tempConfig.active[targetLine].push(el);
+                });
+                
+                console.log('New active config:', this.tempConfig.active);
+            },
+            
+            reorderConfigInLine(draggedId, targetId, targetLine) {
+                console.log('Reordering in line:', targetLine, draggedId, this.dropPosition, targetId);
+                
+                let elementsToMove = [];
+                let sourceLineIdx = null;
+                let draggedIdx = -1;
+                
+                // Find which line the dragged element is in
+                for (let i = 0; i < this.tempConfig.active.length; i++) {
+                    const idx = this.tempConfig.active[i].findIndex(e => e.id === draggedId);
+                    if (idx !== -1) {
+                        sourceLineIdx = i;
+                        draggedIdx = idx;
+                        
+                        // If it's static text, move it with adjacent spaces
+                        if (this.tempConfig.active[i][idx].isStaticText) {
+                            const group = this.getConsecutivePunctuationGroup(this.tempConfig.active[i], idx);
+                            console.log('Moving static text with group from', group.start, 'to', group.end);
+                            
+                            // Remove all from array (in reverse to maintain indices)
+                            for (let j = group.end; j >= group.start; j--) {
+                                elementsToMove.unshift(this.tempConfig.active[i].splice(j, 1)[0]);
+                            }
+                        } else {
+                            // For regular punctuation, only move the single item
+                            elementsToMove = [this.tempConfig.active[i].splice(idx, 1)[0]];
+                            console.log('Moving single element:', elementsToMove[0].label);
                         }
                         break;
                     }
@@ -1063,6 +1355,11 @@
                         this.tempConfig.active[targetLine].splice(targetIdx + i, 0, el);
                     });
                     console.log('New order in line', targetLine, ':', this.tempConfig.active[targetLine].map(e => e.label));
+                } else {
+                    // Target not found, put elements back
+                    elementsToMove.forEach((el) => {
+                        this.tempConfig.active[sourceLineIdx].splice(draggedIdx, 0, el);
+                    });
                 }
             },
             
@@ -1141,6 +1438,97 @@
                 this.closeConfig();
             },
             
+            updateConfigStaticText(id, value) {
+                if (!this.tempConfig) return;
+                
+                // Search in active (single line or multi-line)
+                if (Array.isArray(this.tempConfig.active)) {
+                    if (Array.isArray(this.tempConfig.active[0])) {
+                        // Multi-line
+                        for (let line of this.tempConfig.active) {
+                            const el = line.find(e => e.id === id);
+                            if (el) {
+                                el.field = value;
+                                el.label = value;
+                                return;
+                            }
+                        }
+                    } else {
+                        // Single line
+                        const el = this.tempConfig.active.find(e => e.id === id);
+                        if (el) {
+                            el.field = value;
+                            el.label = value;
+                        }
+                    }
+                }
+            },
+            
+            autoResizeStaticTextInput(input) {
+                if (!input) return;
+                const value = input.value || input.placeholder || '';
+                
+                // Use a hidden span to measure actual text width
+                if (!this.measureSpan) {
+                    this.measureSpan = document.createElement('span');
+                    this.measureSpan.style.cssText = 'position: absolute; visibility: hidden; white-space: pre; font-size: 12px; font-family: inherit;';
+                    document.body.appendChild(this.measureSpan);
+                }
+                
+                this.measureSpan.textContent = value;
+                const measuredWidth = this.measureSpan.offsetWidth;
+                
+                // Add some padding to the width (8px for comfort)
+                const finalWidth = Math.max(30, measuredWidth + 8) + 'px';
+                input.style.width = finalWidth;
+                
+                console.log('Resizing input:', value, 'measuredWidth:', measuredWidth, 'finalWidth:', finalWidth);
+            },
+            
+            enableStaticTextEdit(id, event) {
+                console.log('enableStaticTextEdit called with id:', id);
+                console.log('event.target:', event.target);
+                
+                event.stopPropagation();
+                event.preventDefault();
+                
+                // Find the parent config-item div
+                const icon = event.target.closest('.static-text-edit-icon');
+                console.log('Found icon:', icon);
+                if (!icon) {
+                    console.error('Icon not found');
+                    return;
+                }
+                
+                const configItem = icon.closest('.config-item');
+                console.log('Found configItem:', configItem);
+                if (!configItem) {
+                    console.error('Config item not found');
+                    return;
+                }
+                
+                // Add editing class to enable input
+                configItem.classList.add('editing');
+                console.log('Added editing class');
+                
+                // Find and focus the input
+                const input = configItem.querySelector('input[type="text"]');
+                console.log('Found input:', input);
+                if (input) {
+                    input.focus();
+                    input.select();
+                    console.log('Input focused and selected');
+                    
+                    // Remove editing class on blur
+                    input.addEventListener('blur', function() {
+                        configItem.classList.remove('editing');
+                        console.log('Removed editing class on blur');
+                    }, { once: true });
+                } else {
+                    console.error('Input not found in config item');
+                }
+            },
+            
             updateFieldFromConfig(item) {
                 if (!item.configurable || !item.config) return;
                 const isMultiLine = item.maxLines > 1;
@@ -1181,7 +1569,7 @@
                 }
             },
             
-            addSpacer() { this.items.push({id:this.nextId++,type:'spacer',active:true,spacing:20}); this.render(); this.updatePreview(); },
+            addSpacer() { this.items.push({id:this.nextId++,type:'spacer',active:true,spacing:20,hasLine:false}); this.render(); this.updatePreview(); },
             addText() { this.items.push({id:this.nextId++,label:'Click to edit',field:'Click to edit',type:'static',active:true,prefix:'',bold:false,italic:false,underline:false,color:'#000000',fontSize:null}); this.render(); this.updatePreview(); },
             
             getSampleData() {
@@ -1224,8 +1612,20 @@
                 const sampleData = this.getSampleData();
                 let html = '';
                 this.items.filter(i => i.active).forEach(item => {
-                    if (item.type === 'spacer') { html += `<div style="height:${item.spacing||20}px"></div>`; return; }
-                    const fontSize = item.fontSize ?? this.globalFontSize;
+                    if (item.type === 'spacer') {
+                        if (item.hasLine) {
+                            const thickness = item.lineThickness || 1;
+                            const totalSpace = item.spacing || 20;
+                            const spaceAbove = Math.floor((totalSpace - thickness) / 2);
+                            const spaceBelow = totalSpace - thickness - spaceAbove;
+                            html += `<div style="height:${spaceAbove}px"></div><hr style="border:none;border-top:${thickness}px solid ${item.lineColor||'#dee2e6'};width:${item.lineWidth||'100%'};margin:0;"><div style="height:${spaceBelow}px"></div>`;
+                        } else {
+                            html += `<div style="height:${item.spacing||20}px"></div>`;
+                        }
+                        return;
+                    }
+                    const isCompanyLogo = item.field === '{company_logo}';
+                    const fontSize = isCompanyLogo ? this.globalFontSize : (item.fontSize ?? this.globalFontSize);
                     let style = `color:${item.color};margin:${globalSpacing}px 0;font-size:${fontSize}px;`;
                     if (item.bold) style += 'font-weight:bold;';
                     if (item.italic) style += 'font-style:italic;';
@@ -1289,9 +1689,21 @@
                 const globalSpacing = document.getElementById('spacing').value;
                 let html = '';
                 this.items.filter(i => i.active).forEach(item => {
-                    if (item.type === 'spacer') { html += `<div style="height:${item.spacing||20}px"></div>`; return; }
-                    const fontSize = item.fontSize ?? this.globalFontSize;
-                    let style = `color:${item.color};margin:${globalSpacing}px 0;font-size:${fontSize}px;`;
+                    if (item.type === 'spacer') {
+                        if (item.hasLine) {
+                            const thickness = item.lineThickness || 1;
+                            const totalSpace = item.spacing || 20;
+                            const spaceAbove = Math.floor((totalSpace - thickness) / 2);
+                            const spaceBelow = totalSpace - thickness - spaceAbove;
+                            html += `<div style="height:${spaceAbove}px"></div><hr style="border:none;border-top:${thickness}px solid ${item.lineColor||'#dee2e6'};width:${item.lineWidth||'100%'};margin:0;"><div style="height:${spaceBelow}px"></div>`;
+                        } else {
+                            html += `<div style="height:${item.spacing||20}px"></div>`;
+                        }
+                        return;
+                    }
+                    const isCompanyLogo = item.field === '{company_logo}';
+                    const fontSize = isCompanyLogo ? this.globalFontSize : (item.fontSize ?? this.globalFontSize);
+                    let style = `color:${item.color};margin:${globalSpacing}px 0;font-size:${fontSize}px;background:transparent;`;
                     if (item.bold) style += 'font-weight:bold;';
                     if (item.italic) style += 'font-style:italic;';
                     if (item.underline) style += 'text-decoration:underline;';
@@ -1310,8 +1722,12 @@
                 // Create temporary element to copy from
                 const tempEl = document.createElement('div');
                 tempEl.innerHTML = html;
-                tempEl.style.position = 'absolute';
-                tempEl.style.left = '-9999px';
+                tempEl.style.cssText = 'position:absolute;left:-9999px;background:none;padding:0;margin:0;border:none;';
+                
+                // Reset all potential inherited styles
+                tempEl.style.background = 'transparent';
+                tempEl.style.backgroundColor = 'transparent';
+                
                 document.body.appendChild(tempEl);
                 
                 const range = document.createRange();
@@ -1324,7 +1740,24 @@
                 document.body.removeChild(tempEl);
                 window.getSelection().removeAllRanges();
                 
-                alert('Template copied to clipboard!');
+                // Clear any existing timeout to prevent conflicts
+                if (this.copyButtonTimeout) {
+                    clearTimeout(this.copyButtonTimeout);
+                }
+                
+                // Update button text
+                const copyBtn = document.querySelector('.copy-btn');
+                copyBtn.textContent = 'Copied!';
+                copyBtn.style.background = '#28a745';
+                copyBtn.style.transition = '';
+                
+                // Fade back after 1.5 seconds
+                this.copyButtonTimeout = setTimeout(() => {
+                    copyBtn.style.transition = 'all 0.5s ease';
+                    copyBtn.textContent = 'Copy Template';
+                    copyBtn.style.background = '';
+                    this.copyButtonTimeout = null;
+                }, 1500);
             },
             
             openPasteModal() {
@@ -1334,6 +1767,14 @@
             
             closePasteModal() {
                 document.getElementById('pasteModal').classList.remove('show');
+            },
+            
+            openChangelogModal() {
+                document.getElementById('changelogModal').classList.add('show');
+            },
+            
+            closeChangelogModal() {
+                document.getElementById('changelogModal').classList.remove('show');
             },
             
             pasteTemplate() {
@@ -1369,15 +1810,29 @@
                     
                     const line = lines[lineIndex];
                     
-                    // Check if line is empty - create spacer
+                    // Check if line is empty - count consecutive empty lines for smart spacer detection
                     if (line.length === 0) {
-                        console.log('Empty line detected at index', lineIndex, '- creating spacer');
-                        parsedItems.push({
-                            id: tempId++,
-                            type: 'spacer',
-                            active: true,
-                            spacing: 20
-                        });
+                        // Count consecutive empty lines
+                        let emptyCount = 1;
+                        let nextIdx = lineIndex + 1;
+                        while (nextIdx < lines.length && lines[nextIdx].length === 0) {
+                            emptyCount++;
+                            processedLineIndexes.add(nextIdx);
+                            nextIdx++;
+                        }
+                        
+                        // Only create spacer if 2+ consecutive empty lines (intentional spacing)
+                        if (emptyCount >= 2) {
+                            console.log(`Found ${emptyCount} consecutive empty lines at index ${lineIndex} - creating spacer`);
+                            parsedItems.push({
+                                id: tempId++,
+                                type: 'spacer',
+                                active: true,
+                                spacing: emptyCount * 10  // 10px per empty line
+                            });
+                        } else {
+                            console.log(`Single empty line at index ${lineIndex} - skipping (normal spacing)`);
+                        }
                         continue;
                     }
                     
@@ -1416,25 +1871,165 @@
                             matched.active = true;
                             matched.prefix = prefix;
                             
+                            // Special handling: If this is Staff Name, parse the separator between first and last
+                            if (matched.label === 'Staff Name' && matched.configurable) {
+                                console.log('  -> Staff Name found, checking for separator between first and last name');
+                                
+                                // Find positions of {staff.first} and {staff.last}
+                                const firstIndex = line.indexOf('{staff.first}');
+                                const lastIndex = line.indexOf('{staff.last}');
+                                
+                                if (firstIndex !== -1 && lastIndex !== -1 && lastIndex > firstIndex) {
+                                    const separator = line.substring(firstIndex + '{staff.first}'.length, lastIndex);
+                                    
+                                    if (separator && separator !== ' ') {
+                                        console.log('    -> Found separator between names:', separator);
+                                        
+                                        const staffConfig = [];
+                                        staffConfig.push({id:'first',label:'First Name',field:'{staff.first}'});
+                                        
+                                        // Parse separator (skip single space as fields have natural spacing)
+                                        let punctIdCounter = 1;
+                                        const isPurelyPunctuation = /^[,\.\-\/\\\s]+$/.test(separator);
+                                        
+                                        if (isPurelyPunctuation) {
+                                            for (let char of separator) {
+                                                staffConfig.push({
+                                                    id: `punct_${punctIdCounter++}`,
+                                                    label: char === ' ' ? '␣' : char,
+                                                    field: char,
+                                                    isPunctuation: true,
+                                                    isStaticText: false
+                                                });
+                                            }
+                                        } else {
+                                            const trimmed = separator.trim();
+                                            const leadingSpaces = separator.match(/^\s*/)[0].length;
+                                            const trailingSpaces = separator.match(/\s*$/)[0].length;
+                                            
+                                            if (leadingSpaces > 0) {
+                                                staffConfig.push({
+                                                    id: `punct_${punctIdCounter++}`,
+                                                    label: '␣',
+                                                    field: ' ',
+                                                    isPunctuation: true,
+                                                    isStaticText: false
+                                                });
+                                            }
+                                            
+                                            staffConfig.push({
+                                                id: `punct_${punctIdCounter++}`,
+                                                label: trimmed,
+                                                field: trimmed,
+                                                isPunctuation: true,
+                                                isStaticText: true
+                                            });
+                                            
+                                            if (trailingSpaces > 0) {
+                                                staffConfig.push({
+                                                    id: `punct_${punctIdCounter++}`,
+                                                    label: '␣',
+                                                    field: ' ',
+                                                    isPunctuation: true,
+                                                    isStaticText: false
+                                                });
+                                            }
+                                        }
+                                        
+                                        staffConfig.push({id:'last',label:'Last Name',field:'{staff.last}'});
+                                        
+                                        matched.config.active = staffConfig;
+                                        console.log('    -> Updated Staff Name config:', matched.config);
+                                    }
+                                }
+                            }
+                            
                             // Special handling: If this is Company Address, look ahead for more location fields
                             if (matched.label === 'Company Address' && matched.configurable) {
                                 console.log('  -> Company Address found, checking next lines for additional location fields');
-                                const additionalLines = [];
+                                const allAddressLines = [];
                                 
-                                // Look ahead at next lines
+                                // First, process the CURRENT line if it has location fields
+                                const currentFields = mergeFields.map(f => 
+                                    f.replace(/[｛﹛]/g, '{').replace(/[｝﹜]/g, '}')
+                                );
+                                
+                                // Only include ADDRESS location fields (not phone/fax/mobile)
+                                const addressFields = ['line1', 'line2', 'line3', 'city', 'state', 'post_code', 'country'];
+                                const currentLocationFields = currentFields.filter(f => {
+                                    const match = f.match(/\{location\.(\w+)\}/);
+                                    return match && addressFields.includes(match[1]);
+                                });
+                                
+                                if (currentLocationFields.length > 0) {
+                                    console.log('    -> Current line has location fields:', line);
+                                    // Parse separators in current line
+                                    const fieldsWithSeparators = [];
+                                    let currentPos = 0;
+                                    let lastAddressFieldEnd = 0;
+                                    
+                                    for (let i = 0; i < mergeFields.length; i++) {
+                                        const field = currentFields[i];
+                                        // Skip non-address location fields
+                                        const match = field.match(/\{location\.(\w+)\}/);
+                                        if (!match || !addressFields.includes(match[1])) continue;
+                                        
+                                        const fieldStart = line.indexOf(mergeFields[i], currentPos);
+                                        const fieldEnd = fieldStart + mergeFields[i].length;
+                                        lastAddressFieldEnd = fieldEnd;
+                                        
+                                        let separator = '';
+                                        // Find next address location field for separator
+                                        let foundNext = false;
+                                        for (let j = i + 1; j < mergeFields.length; j++) {
+                                            const nextMatch = currentFields[j].match(/\{location\.(\w+)\}/);
+                                            if (nextMatch && addressFields.includes(nextMatch[1])) {
+                                                const nextFieldStart = line.indexOf(mergeFields[j], fieldEnd);
+                                                separator = line.substring(fieldEnd, nextFieldStart);
+                                                foundNext = true;
+                                                break;
+                                            }
+                                        }
+                                        
+                                        // If this is the last address field and there's trailing text, capture it
+                                        if (!foundNext && fieldEnd < line.length) {
+                                            separator = line.substring(fieldEnd);
+                                        }
+                                        
+                                        fieldsWithSeparators.push({ field, separator });
+                                        currentPos = fieldEnd;
+                                    }
+                                    
+                                    if (fieldsWithSeparators.length > 0) {
+                                        allAddressLines.push({ line, fields: currentLocationFields, fieldsWithSeparators });
+                                    }
+                                }
+                                
+                                // Look ahead at next lines (skip empty lines)
                                 for (let nextIdx = lineIndex + 1; nextIdx < lines.length; nextIdx++) {
                                     const nextLine = lines[nextIdx];
+                                    
+                                    // Skip empty lines when looking for address continuation
+                                    if (nextLine.length === 0) {
+                                        console.log('    -> Skipping empty line at index', nextIdx);
+                                        continue;
+                                    }
+                                    
                                     const nextFields = nextLine.match(/[\{｛﹛][a-z0-9_\.]+[\}｝﹜]/gi) || [];
                                     const normalizedNext = nextFields.map(f => 
                                         f.replace(/[｛﹛]/g, '{').replace(/[｝﹜]/g, '}')
                                     );
                                     
-                                    // Check if this line has location fields
-                                    const hasLocationFields = normalizedNext.some(f => f.startsWith('{location.'));
+                                    // Check if this line has ADDRESS location fields (not phone/fax/mobile)
+                                    const addressFields = ['line1', 'line2', 'line3', 'city', 'state', 'post_code', 'country'];
+                                    const hasLocationFields = normalizedNext.some(f => {
+                                        const match = f.match(/\{location\.(\w+)\}/);
+                                        return match && addressFields.includes(match[1]);
+                                    });
                                     if (hasLocationFields) {
                                         console.log('    -> Found additional location line:', nextLine);
                                         
-                                        // Parse separators between fields
+                                        // Parse separators between fields and trailing text
                                         const fieldsWithSeparators = [];
                                         let currentPos = 0;
                                         for (let i = 0; i < nextFields.length; i++) {
@@ -1442,18 +2037,21 @@
                                             const fieldStart = nextLine.indexOf(nextFields[i], currentPos);
                                             const fieldEnd = fieldStart + nextFields[i].length;
                                             
-                                            // Get separator (text between this field and next)
+                                            // Get separator (text between this field and next, or trailing text)
                                             let separator = '';
                                             if (i < nextFields.length - 1) {
                                                 const nextFieldStart = nextLine.indexOf(nextFields[i + 1], fieldEnd);
                                                 separator = nextLine.substring(fieldEnd, nextFieldStart);
+                                            } else if (fieldEnd < nextLine.length) {
+                                                // Capture trailing text after last field
+                                                separator = nextLine.substring(fieldEnd);
                                             }
                                             
                                             fieldsWithSeparators.push({ field, separator });
                                             currentPos = fieldEnd;
                                         }
                                         
-                                        additionalLines.push({ line: nextLine, fields: normalizedNext, fieldsWithSeparators });
+                                        allAddressLines.push({ line: nextLine, fields: normalizedNext, fieldsWithSeparators });
                                         processedLineIndexes.add(nextIdx);
                                     } else {
                                         // Stop at first non-location line
@@ -1462,15 +2060,14 @@
                                 }
                                 
                                 // Configure the address with found fields
-                                if (additionalLines.length > 0) {
-                                    console.log('    -> Configuring address with', additionalLines.length + 1, 'lines');
+                                if (allAddressLines.length > 0) {
+                                    console.log('    -> Configuring address with', allAddressLines.length, 'lines');
                                     
-                                    // Update config to include additional lines with separators
-                                    const newConfigActive = [[{id:'line1',label:'Address Line 1',field:'{location.line1}'}]];
-                                    
-                                    // Add each additional line as a row in the config
+                                    // Build config from ALL address lines (including current)
+                                    const newConfigActive = [];
                                     let punctIdCounter = 1;
-                                    additionalLines.forEach(lineData => {
+                                    
+                                    allAddressLines.forEach(lineData => {
                                         const lineRow = [];
                                         lineData.fieldsWithSeparators.forEach((fw, idx) => {
                                             const fieldName = fw.field.match(/\{location\.(\w+)\}/)?.[1] || 'field';
@@ -1481,16 +2078,58 @@
                                                 field: fw.field
                                             });
                                             
-                                            // If there's a separator, add it as punctuation items
-                                            if (fw.separator) {
-                                                // Split separator into characters and create punctuation items
-                                                for (let char of fw.separator) {
+                                            // If there's a separator, add it as punctuation items (skip single space)
+                                            if (fw.separator && fw.separator !== ' ') {
+                                                // Check if separator is purely punctuation/space or contains text
+                                                const isPurelyPunctuation = /^[,\.\-\/\\\s]+$/.test(fw.separator);
+                                                
+                                                if (isPurelyPunctuation) {
+                                                    // Split into individual characters for commas, periods, spaces, etc.
+                                                    for (let char of fw.separator) {
+                                                        lineRow.push({
+                                                            id: `punct_${punctIdCounter++}`,
+                                                            label: char === ' ' ? '␣' : char,
+                                                            field: char,
+                                                            isPunctuation: true,
+                                                            isStaticText: false
+                                                        });
+                                                    }
+                                                } else {
+                                                    // Contains text - treat as static text with surrounding spaces
+                                                    const trimmed = fw.separator.trim();
+                                                    const leadingSpaces = fw.separator.match(/^\s*/)[0].length;
+                                                    const trailingSpaces = fw.separator.match(/\s*$/)[0].length;
+                                                    
+                                                    // Add leading space if exists
+                                                    if (leadingSpaces > 0) {
+                                                        lineRow.push({
+                                                            id: `punct_${punctIdCounter++}`,
+                                                            label: '␣',
+                                                            field: ' ',
+                                                            isPunctuation: true,
+                                                            isStaticText: false
+                                                        });
+                                                    }
+                                                    
+                                                    // Add static text
                                                     lineRow.push({
                                                         id: `punct_${punctIdCounter++}`,
-                                                        label: char,
-                                                        field: char,
-                                                        isPunctuation: true
+                                                        label: trimmed,
+                                                        field: trimmed,
+                                                        isPunctuation: true,
+                                                        isStaticText: true
                                                     });
+                                                    
+                                                    // Add trailing space if exists
+                                                    if (trailingSpaces > 0) {
+                                                        lineRow.push({
+                                                            id: `punct_${punctIdCounter++}`,
+                                                            label: '␣',
+                                                            field: ' ',
+                                                            isPunctuation: true,
+                                                            isStaticText: false
+                                                        });
+                                                    }
                                                 }
                                             }
                                         });
@@ -1609,9 +2248,27 @@
                     '{company.bpay_customer_ref}': { label: 'BPAY Reference', field: '{company.bpay_customer_ref}' }
                 };
                 
-                // Check for Staff Name (compound field)
+                // Check for Staff Name (compound field or fullname)
                 if (mergeFields.includes('{staff.first}') && mergeFields.includes('{staff.last}')) {
-                    console.log('  -> Matched Staff Name');
+                    console.log('  -> Matched Staff Name (first + last)');
+                    return {
+                        label: 'Staff Name',
+                        field: '{staff.first} {staff.last}',
+                        type: 'merge',
+                        configurable: true,
+                        config: {active:[{id:'first',label:'First Name',field:'{staff.first}'},{id:'last',label:'Last Name',field:'{staff.last}'}],inactive:[]},
+                        maxLines: 1,
+                        prefix: '',
+                        bold: false,
+                        italic: false,
+                        underline: false,
+                        color: '#000000'
+                    };
+                }
+                
+                // Check for alternative Staff Name field (calculation.current_user_fullname)
+                if (mergeFields.includes('{calculation.current_user_fullname}')) {
+                    console.log('  -> Matched Staff Name (fullname field)');
                     return {
                         label: 'Staff Name',
                         field: '{staff.first} {staff.last}',
@@ -1673,13 +2330,40 @@
                     }
                 }
                 
-                // Check for multi-location fields (like city, state, post_code on one line)
-                const hasMultipleLocationFields = mergeFields.filter(f => f.startsWith('{location.')).length > 1;
-                console.log('  Has multiple location fields?:', hasMultipleLocationFields);
-                if (hasMultipleLocationFields) {
-                    // This is a compound address line - treat as custom
-                    console.log('  -> Returning null (multi-location)');
-                    return null;
+                // Check if this line contains ANY ADDRESS location fields - treat as Company Address
+                const addressFieldNames = ['line1', 'line2', 'line3', 'city', 'state', 'post_code', 'country'];
+                const locationFields = mergeFields.filter(f => {
+                    const match = f.match(/\{location\.(\w+)\}/);
+                    return match && addressFieldNames.includes(match[1]);
+                });
+                console.log('  Address location fields found:', locationFields);
+                if (locationFields.length > 0) {
+                    // Any address location fields should be treated as Company Address
+                    console.log('  -> Matched Company Address (contains address location fields)');
+                    
+                    // Determine the primary field (prefer line1, city, or first found)
+                    let primaryField = '{location.line1}';
+                    if (locationFields.includes('{location.line1}')) {
+                        primaryField = '{location.line1}';
+                    } else if (locationFields.includes('{location.city}')) {
+                        primaryField = '{location.city}';
+                    } else {
+                        primaryField = locationFields[0];
+                    }
+                    
+                    return {
+                        label: 'Company Address',
+                        field: primaryField,
+                        type: 'merge',
+                        configurable: true,
+                        maxLines: 5,
+                        config: {active:[[{id:'line1',label:'Address Line 1',field:'{location.line1}'}]],inactive:[{id:'line2',label:'Address Line 2',field:'{location.line2}'},{id:'line3',label:'Address Line 3',field:'{location.line3}'},{id:'city',label:'City',field:'{location.city}'},{id:'state',label:'State',field:'{location.state}'},{id:'zip',label:'Post Code',field:'{location.post_code}'},{id:'country',label:'Country',field:'{location.country}'}]},
+                        prefix: '',
+                        bold: false,
+                        italic: false,
+                        underline: false,
+                        color: '#000000'
+                    };
                 }
                 
                 console.log('  -> Returning null (no match)');
