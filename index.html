@@ -101,7 +101,7 @@
         .copy-btn { padding: 8px 16px; background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 13px; font-weight: 500; transition: all 0.2s; box-shadow: 0 2px 6px rgba(16,185,129,0.3); min-width: 130px; }
         .copy-btn:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(16,185,129,0.4); }
         .copy-btn:active { transform: translateY(0); }
-        .paste-btn { padding: 8px 16px; background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 13px; font-weight: 500; transition: all 0.2s; box-shadow: 0 2px 6px rgba(59,130,246,0.3); }
+        .paste-btn { padding: 8px 16px; background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 13px; font-weight: 500; transition: all 0.2s; box-shadow: 0 2px 6px rgba(59,130,246,0.3); min-width: 145px; }
         .paste-btn:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(59,130,246,0.4); }
         .paste-btn:active { transform: translateY(0); }
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); align-items: center; justify-content: center; z-index: 1000; backdrop-filter: blur(4px); }
@@ -174,7 +174,7 @@
             <button class="copy-btn" onclick="S.copy()">Copy Template</button>
             <button class="paste-btn" onclick="S.openPasteModal()">Paste Template</button>
             <div class="version" onclick="S.openChangelogModal()">
-                <span>v1.41</span>
+                <span>v1.44</span>
                 <svg class="version-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
                     <circle cx="8" cy="8" r="6"></circle>
                     <line x1="8" y1="11" x2="8" y2="8"></line>
@@ -317,6 +317,19 @@
             <div class="changelog-header">📋 Changelog</div>
             <div class="modal-body">
                 <div class="changelog-version">
+                    <div class="changelog-version-title">v1.44 - October 3, 2025</div>
+                    <ul class="changelog-list">
+                        <li>Enhanced Paste Template button with visual feedback - changes to "Pasted!" with darker blue background</li>
+                        <li>Button maintains its blue theme color instead of switching to green for consistency</li>
+                        <li>Smoothly fades back to "Paste Template" after 1.5 seconds</li>
+                        <li>Removed success alert dialog in favor of inline button feedback</li>
+                        <li>Fixed spacer background striping issue when copying templates</li>
+                        <li>Added explicit background:transparent to all spacer elements and hr lines</li>
+                        <li>Fixed font size dropdown color indicator after template import</li>
+                        <li>Items using global font size now correctly show grey dropdown (not blue)</li>
+                    </ul>
+                </div>
+                <div class="changelog-version">
                     <div class="changelog-version-title">v1.41 - October 2, 2025</div>
                     <ul class="changelog-list">
                         <li>Added support for {calculation.current_user_fullname} field in paste template</li>
@@ -402,7 +415,7 @@
                     <ul class="changelog-list">
                         <li>Added horizontal line feature to Spacer objects</li>
                         <li>Added toggle switch to enable/disable line within spacer</li>
-                        <li>Line controls: thickness (1-5px), width (XS-XXL: 50%-100%), and color picker with hex input</li>
+                        <li>Line controls: thickness (1-5px), width (XXS-XXL: 40%-100%), and color picker with hex input</li>
                         <li>SVG icons added for height, thickness, and width controls</li>
                         <li>Line is centered within the spacer spacing (e.g., 20px spacer with 2px line = 9px above, 2px line, 9px below)</li>
                         <li>Adjusted control spacing: 2px gap between icons and inputs, 8px gap between control groups</li>
@@ -445,6 +458,7 @@
             previewMode: 'code',
             
             copyButtonTimeout: null,
+            pasteButtonTimeout: null,
             
             init() {
                 const defaults = [
@@ -492,7 +506,7 @@
                     const heightIcon = `<svg class="control-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="2" x2="8" y2="14"></line><polyline points="5 5 8 2 11 5"></polyline><polyline points="5 11 8 14 11 11"></polyline></svg>`;
                     const thicknessIcon = `<svg class="control-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-linecap="round"><line x1="2" y1="4" x2="14" y2="4" stroke-width="1"></line><line x1="2" y1="8" x2="14" y2="8" stroke-width="2"></line><line x1="2" y1="12" x2="14" y2="12" stroke-width="3"></line></svg>`;
                     const widthIcon = `<svg class="control-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><line x1="2" y1="8" x2="14" y2="8"></line><polyline points="5 5 2 8 5 11"></polyline><polyline points="11 5 14 8 11 11"></polyline></svg>`;
-                    const lineControls = hasLine ? `<div class="line-controls"><div class="line-control-group">${thicknessIcon}<select class="line-input" onchange="S.updateLineThickness(${item.id}, this.value)"><option value="1" ${thickness===1?'selected':''}>1</option><option value="2" ${thickness===2?'selected':''}>2</option><option value="3" ${thickness===3?'selected':''}>3</option><option value="4" ${thickness===4?'selected':''}>4</option><option value="5" ${thickness===5?'selected':''}>5</option></select></div><div class="line-control-group">${widthIcon}<select class="line-input" onchange="S.updateLineWidth(${item.id}, this.value)"><option value="50%" ${width==='50%'?'selected':''}>XS</option><option value="60%" ${width==='60%'?'selected':''}>S</option><option value="70%" ${width==='70%'?'selected':''}>M</option><option value="80%" ${width==='80%'?'selected':''}>L</option><option value="90%" ${width==='90%'?'selected':''}>XL</option><option value="100%" ${width==='100%'?'selected':''}>XXL</option></select></div><div class="line-color-bar"><input type="color" class="line-color-input" id="line-color-${item.id}" value="${item.lineColor||'#dee2e6'}" onchange="S.updateLineColor(${item.id}, this.value)"><input type="text" class="line-hex-input" id="line-hex-${item.id}" value="${item.lineColor||'#dee2e6'}" onchange="S.updateLineColorFromHex(${item.id}, this.value)" maxlength="7" placeholder="#000000"></div></div>` : '';
+                    const lineControls = hasLine ? `<div class="line-controls"><div class="line-control-group">${thicknessIcon}<select class="line-input" onchange="S.updateLineThickness(${item.id}, this.value)"><option value="1" ${thickness===1?'selected':''}>1</option><option value="2" ${thickness===2?'selected':''}>2</option><option value="3" ${thickness===3?'selected':''}>3</option><option value="4" ${thickness===4?'selected':''}>4</option><option value="5" ${thickness===5?'selected':''}>5</option></select></div><div class="line-control-group">${widthIcon}<select class="line-input" onchange="S.updateLineWidth(${item.id}, this.value)"><option value="40%" ${width==='40%'?'selected':''}>XXS</option><option value="50%" ${width==='50%'?'selected':''}>XS</option><option value="60%" ${width==='60%'?'selected':''}>S</option><option value="70%" ${width==='70%'?'selected':''}>M</option><option value="80%" ${width==='80%'?'selected':''}>L</option><option value="90%" ${width==='90%'?'selected':''}>XL</option><option value="100%" ${width==='100%'?'selected':''}>XXL</option></select></div><div class="line-color-bar"><input type="color" class="line-color-input" id="line-color-${item.id}" value="${item.lineColor||'#dee2e6'}" onchange="S.updateLineColor(${item.id}, this.value)"><input type="text" class="line-hex-input" id="line-hex-${item.id}" value="${item.lineColor||'#dee2e6'}" onchange="S.updateLineColorFromHex(${item.id}, this.value)" maxlength="7" placeholder="#000000"></div></div>` : '';
                     return `<div class="item spacer" draggable="true" data-id="${item.id}"><div class="item-left"><span>Spacer</span></div>${item.active ? `<div class="spacer-controls"><div class="spacer-height-group">${heightIcon}<input type="number" class="spacer-input" value="${item.spacing||20}" onchange="S.updateSpacer(${item.id}, this.value)"></div><div class="line-toggle-wrapper"><span class="line-toggle-label">Line</span><button class="line-toggle ${hasLine?'active':''}" onclick="S.toggleLine(${item.id})"></button></div>${lineControls}</div>` : ''}</div>`;
                 }
                 const isStatic = item.type === 'static';
@@ -1695,9 +1709,9 @@
                             const totalSpace = item.spacing || 20;
                             const spaceAbove = Math.floor((totalSpace - thickness) / 2);
                             const spaceBelow = totalSpace - thickness - spaceAbove;
-                            html += `<div style="height:${spaceAbove}px"></div><hr style="border:none;border-top:${thickness}px solid ${item.lineColor||'#dee2e6'};width:${item.lineWidth||'100%'};margin:0;"><div style="height:${spaceBelow}px"></div>`;
+                            html += `<div style="height:${spaceAbove}px;background:transparent;"></div><hr style="border:none;border-top:${thickness}px solid ${item.lineColor||'#dee2e6'};width:${item.lineWidth||'100%'};margin:0;background:transparent;"><div style="height:${spaceBelow}px;background:transparent;"></div>`;
                         } else {
-                            html += `<div style="height:${item.spacing||20}px"></div>`;
+                            html += `<div style="height:${item.spacing||20}px;background:transparent;"></div>`;
                         }
                         return;
                     }
@@ -1787,7 +1801,25 @@
                 try {
                     this.parseAndImport(html);
                     this.closePasteModal();
-                    alert('Template imported successfully!');
+                    
+                    // Clear any existing timeout
+                    if (this.pasteButtonTimeout) {
+                        clearTimeout(this.pasteButtonTimeout);
+                    }
+                    
+                    // Update button appearance
+                    const pasteBtn = document.querySelector('.paste-btn');
+                    pasteBtn.textContent = 'Pasted!';
+                    pasteBtn.style.background = '#1d4ed8';
+                    pasteBtn.style.transition = '';
+                    
+                    // Reset after delay
+                    this.pasteButtonTimeout = setTimeout(() => {
+                        pasteBtn.style.transition = 'all 0.5s ease';
+                        pasteBtn.textContent = 'Paste Template';
+                        pasteBtn.style.background = '';
+                        this.pasteButtonTimeout = null;
+                    }, 1500);
                 } catch (error) {
                     console.error('Parse error:', error);
                     alert('Error parsing template. Please check the format.');
@@ -2262,7 +2294,8 @@
                         bold: false,
                         italic: false,
                         underline: false,
-                        color: '#000000'
+                        color: '#000000',
+                        fontSize: null
                     };
                 }
                 
@@ -2280,7 +2313,8 @@
                         bold: false,
                         italic: false,
                         underline: false,
-                        color: '#000000'
+                        color: '#000000',
+                        fontSize: null
                     };
                 }
                 
@@ -2307,7 +2341,8 @@
                                 bold: false,
                                 italic: false,
                                 underline: false,
-                                color: '#000000'
+                                color: '#000000',
+                                fontSize: null
                             };
                         }
                         
@@ -2323,7 +2358,8 @@
                             bold: false,
                             italic: false,
                             underline: false,
-                            color: '#000000'
+                            color: '#000000',
+                            fontSize: null
                         };
                     } else {
                         console.log('  NOT entering fieldMap[field] block even though it exists!');
@@ -2362,7 +2398,8 @@
                         bold: false,
                         italic: false,
                         underline: false,
-                        color: '#000000'
+                        color: '#000000',
+                        fontSize: null
                     };
                 }
                 
